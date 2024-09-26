@@ -1,4 +1,5 @@
 import React from "react";
+import { FaSearch } from "react-icons/fa";
 
 interface HeaderProps {
   onSignIn: () => void;
@@ -11,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ onSignIn, onSearchToggle }) => {
       <h1 className="text-2xl text-textColor">Flash Notes</h1>
       <div className="header-actions flex items-center gap-4">
         <button
-          className="sign-in-btn bg-buttonBg hover:bg-buttonHover text-textColor p-2 rounded transition-transform transform hover:scale-105"
+          className="sign-in-btn bg-buttonBg hover:bg-buttonHover text-textColor p-2 py-1 rounded transition-transform transform hover:scale-105"
           onClick={onSignIn}
         >
           Sign In
@@ -20,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onSignIn, onSearchToggle }) => {
           className="search-toggle bg-transparent p-2"
           onClick={onSearchToggle}
         >
-          <i className="material-icons text-textColor">search</i>
+          <FaSearch className="text-textColor" />
         </button>
       </div>
     </div>

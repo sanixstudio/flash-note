@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { format } from "date-fns";
 import { FaTrash } from "react-icons/fa";
 import Header from "./components/Header";
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const isChromeApiAvailable = (): boolean => {
     return !!(
@@ -95,9 +96,44 @@ const App: React.FC = () => {
     saveNotes(updatedNotes);
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  const filteredNotes = notes.filter((note) =>
+    note.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     getNotes();
   }, [getNotes]);
+
+  useEffect(() => {
+    if (searchVisible && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchVisible]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchVisible &&
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setSearchVisible(false);
+        setSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [searchVisible]);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="p-4 w-80 bg-bgColor text-textColor">
@@ -109,12 +145,14 @@ const App: React.FC = () => {
       />
 
       {searchVisible && (
-        <div className="mb-4">
+        <div ref={searchContainerRef} className="mb-4">
           <input
+            ref={searchInputRef}
             type="text"
             className="search-input w-full p-2 bg-inputBg text-textColor rounded"
             placeholder="Search notes..."
-            onChange={(e) => console.log("Search:", e.target.value)}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
       )}
@@ -135,7 +173,7 @@ const App: React.FC = () => {
       )}
 
       <div id="notesList" className="overflow-y-auto max-h-60 scrollbar-hide">
-        {notes.map((note) => (
+        {filteredNotes.map((note) => (
           <div
             key={note.id}
             className={`note p-2 mb-2 bg-inputBg border border-borderColor rounded ${
