@@ -45,6 +45,8 @@ const App: React.FC = () => {
   const handleSaveNote = useCallback(() => {
     if (noteInput.trim()) {
       addNote(noteInput);
+      setNoteInput("");
+      setIsAddingNote(false);
     }
   }, [noteInput, addNote]);
 
@@ -56,13 +58,11 @@ const App: React.FC = () => {
   }, [searchTerm]);
 
   const handleNoteInputBlur = useCallback(() => {
-    if (noteInput.trim()) {
-      handleSaveNote();
-    } else {
+    if (!noteInput.trim()) {
       setIsAddingNote(false);
       setNoteInput("");
     }
-  }, [noteInput, handleSaveNote]);
+  }, [noteInput]);
 
   const handleSearchToggle = useCallback(() => {
     setSearchVisible((prev) => !prev);
