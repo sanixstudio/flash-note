@@ -54,7 +54,7 @@ export const useNotes = () => {
       completed: false,
       priority: false,
     };
-    const updatedNotes = [...notes, newNote];
+    const updatedNotes = [newNote, ...notes]; // Add new note at the beginning
     setNotes(updatedNotes);
     setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
     saveNotes(updatedNotes);

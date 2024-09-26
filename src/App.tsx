@@ -98,7 +98,7 @@ const App: React.FC = () => {
   }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <div className="flex flex-col w-[350px] bg-bgColor text-textColor">
+    <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor">
       {error && <div className="text-red-500 p-2">{error}</div>}
 
       <div className="p-4 flex-shrink-0">
@@ -142,16 +142,18 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <ScrollArea className="flex flex-col items-center px-4 pb-4">
-        {filteredNotes.map((note) => (
-          <NoteItem
-            key={note.id}
-            note={note}
-            onToggleCompletion={toggleNoteCompletion}
-            onTogglePriority={toggleNotePriority}
-            onDelete={deleteNote}
-          />
-        ))}
+      <ScrollArea className="flex-grow px-4 pb-4">
+        <div className="pr-2 space-y-2">
+          {filteredNotes.map((note) => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              onToggleCompletion={toggleNoteCompletion}
+              onTogglePriority={toggleNotePriority}
+              onDelete={deleteNote}
+            />
+          ))}
+        </div>
       </ScrollArea>
     </div>
   );
