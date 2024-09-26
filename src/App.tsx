@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import Header from "./components/Header/Header";
 import ActionBar from "./components/ActionBar/ActionBar";
 import NoteItem from "./components/NoteItem/NoteItem";
@@ -17,6 +18,7 @@ const App: React.FC = () => {
     toggleNoteCompletion,
     toggleNotePriority,
     clearAllNotes,
+    reorderNotes,
   } = useNotes();
 
   const [noteInput, setNoteInput] = useState<string>("");
@@ -97,6 +99,14 @@ const App: React.FC = () => {
     };
   }, []); // Empty dependency array means this effect runs once on mount
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return;
+    }
+
+    reorderNotes(result.source.index, result.destination.index);
+  };
+
   return (
     <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor">
       {error && <div className="text-red-500 p-2">{error}</div>}
@@ -142,19 +152,31 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <ScrollArea className="flex-grow px-4 pb-4">
-        <div className="pr-2 space-y-2">
-          {filteredNotes.map((note) => (
-            <NoteItem
-              key={note.id}
-              note={note}
-              onToggleCompletion={toggleNoteCompletion}
-              onTogglePriority={toggleNotePriority}
-              onDelete={deleteNote}
-            />
-          ))}
-        </div>
-      </ScrollArea>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <ScrollArea className="flex-grow px-4 pb-4">
+          <Droppable droppableId="notes">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="space-y-2"
+              >
+                {filteredNotes.map((note, index) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    index={index}
+                    onToggleCompletion={toggleNoteCompletion}
+                    onTogglePriority={toggleNotePriority}
+                    onDelete={deleteNote}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </ScrollArea>
+      </DragDropContext>
     </div>
   );
 };

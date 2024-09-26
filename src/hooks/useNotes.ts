@@ -90,6 +90,15 @@ export const useNotes = () => {
     saveNotes([]);
   };
 
+  const reorderNotes = (startIndex: number, endIndex: number) => {
+    const result = Array.from(notes);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    setNotes(result);
+    saveNotes(result);
+  };
+
   useEffect(() => {
     getNotes();
   }, [getNotes]);
@@ -103,5 +112,6 @@ export const useNotes = () => {
     toggleNoteCompletion,
     toggleNotePriority,
     clearAllNotes,
+    reorderNotes,
   };
 };
