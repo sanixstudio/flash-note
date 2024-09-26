@@ -77,6 +77,25 @@ const App: React.FC = () => {
     }
   }, [searchVisible]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for Alt+Shift+N (Windows/Linux) or Option+Shift+N (Mac)
+      if (event.altKey && event.shiftKey && event.key === 'N') {
+        event.preventDefault(); // Prevent the default browser action
+        setIsAddingNote(true);
+        setTimeout(() => textareaRef.current?.focus(), 0);
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Remove the event listener on cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // Empty dependency array means this effect runs once on mount
+
   return (
     <div className="p-4 w-80 bg-bgColor text-textColor h-screen">
       {error && <div className="text-red-500 mb-2">{error}</div>}
