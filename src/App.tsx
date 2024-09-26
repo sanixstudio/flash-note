@@ -1,111 +1,31 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { format, isToday, isYesterday, isThisYear } from "date-fns";
-import { FaTrash, FaStar } from "react-icons/fa";
+import React, { useState, useRef } from "react";
 import Header from "./components/Header";
 import ActionBar from "./components/ActionBar";
 import NoteInput from "./components/NoteInput";
+import NoteItem from "./components/NoteItem";
+import { useNotes } from "./hooks/useNotes";
 import "./App.css";
 
-interface Note {
-  id: number;
-  content: string;
-  createdAt: string;
-  completed: boolean;
-  priority: boolean;  // New field for priority
-}
-
 const App: React.FC = () => {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const {
+    notes,
+    incompleteNotes,
+    error,
+    addNote,
+    deleteNote,
+    toggleNoteCompletion,
+    toggleNotePriority,
+    clearAllNotes,
+  } = useNotes();
+
   const [noteInput, setNoteInput] = useState<string>("");
-  const [incompleteNotes, setIncompleteNotes] = useState<number>(0);
   const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const isChromeApiAvailable = (): boolean => {
-    return !!(
-      typeof chrome !== "undefined" &&
-      chrome.storage &&
-      chrome.storage.local
-    );
-  };
-
-  const getNotes = useCallback(() => {
-    if (isChromeApiAvailable()) {
-      chrome.storage.local.get("notes", (result) => {
-        if (chrome.runtime.lastError) {
-          setError("Error loading notes: " + chrome.runtime.lastError.message);
-          return;
-        }
-        const savedNotes: Note[] = result.notes || [];
-        setNotes(savedNotes);
-        setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
-      });
-    } else {
-      const savedNotes: Note[] = JSON.parse(
-        localStorage.getItem("notes") || "[]"
-      );
-      setNotes(savedNotes);
-      setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
-    }
-  }, []);
-
-  const saveNotes = (updatedNotes: Note[]) => {
-    if (isChromeApiAvailable()) {
-      chrome.storage.local.set({ notes: updatedNotes }, () => {
-        if (chrome.runtime.lastError) {
-          setError("Error saving notes: " + chrome.runtime.lastError.message);
-        }
-      });
-    } else {
-      localStorage.setItem("notes", JSON.stringify(updatedNotes));
-    }
-  };
-
-  const saveNote = () => {
-    if (!noteInput.trim()) return;
-
-    const newNote: Note = {
-      id: Date.now(),
-      content: noteInput.trim(),
-      createdAt: new Date().toISOString(),
-      completed: false,
-      priority: false,  // Default to non-priority
-    };
-
-    const updatedNotes = [...notes, newNote];
-    setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
-
-    saveNotes(updatedNotes);
-    setNoteInput("");
-    setIsAddingNote(false);
-  };
-
-  const toggleNotePriority = (id: number) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === id ? { ...note, priority: !note.priority } : note
-    );
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-  };
-
-  const deleteNote = (id: number) => {
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
-    saveNotes(updatedNotes);
-  };
-
-  const toggleNoteCompletion = (id: number) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === id ? { ...note, completed: !note.completed } : note
-    );
-    setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
-    saveNotes(updatedNotes);
-  };
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -115,51 +35,6 @@ const App: React.FC = () => {
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    getNotes();
-  }, [getNotes]);
-
-  useEffect(() => {
-    if (searchVisible && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchVisible]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchVisible &&
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setSearchVisible(false);
-        setSearchTerm("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [searchVisible]);
-
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if (isToday(date)) {
-      return `Today at ${format(date, "h:mm a")}`;
-    } else if (isYesterday(date)) {
-      return `Yesterday at ${format(date, "h:mm a")}`;
-    } else if (isThisYear(date)) {
-      return format(date, "MMM d 'at' h:mm a");
-    } else {
-      return format(date, "MMM d, yyyy 'at' h:mm a");
-    }
-  };
-
   const toggleNoteInput = () => {
     setIsAddingNote((prev) => !prev);
     if (!isAddingNote && textareaRef.current) {
@@ -167,16 +42,11 @@ const App: React.FC = () => {
     }
   };
 
-  const clearAllNotes = () => {
-    setNotes([]);
-    setIncompleteNotes(0);
-    saveNotes([]);
-  };
-
-  const handleNoteClick = (event: React.MouseEvent, id: number) => {
-    // Check if the click target is not the delete button
-    if (!(event.target as HTMLElement).closest(".note-btn")) {
-      toggleNoteCompletion(id);
+  const handleSaveNote = () => {
+    if (noteInput.trim()) {
+      addNote(noteInput);
+      setNoteInput("");
+      setIsAddingNote(false);
     }
   };
 
@@ -212,7 +82,7 @@ const App: React.FC = () => {
         <NoteInput
           noteInput={noteInput}
           setNoteInput={setNoteInput}
-          onSaveNote={saveNote}
+          onSaveNote={handleSaveNote}
           onCancel={() => setIsAddingNote(false)}
           textareaRef={textareaRef}
         />
@@ -220,44 +90,13 @@ const App: React.FC = () => {
 
       <div id="notesList" className="overflow-y-auto h-64 scrollbar-hide">
         {filteredNotes.map((note) => (
-          <div
+          <NoteItem
             key={note.id}
-            className={`note p-2 mb-2 bg-inputBg border border-borderColor rounded ${
-              note.completed ? "opacity-completed line-through" : ""
-            } ${note.priority ? "border-yellow-400" : ""} transition-transform transform hover:scale-105 cursor-pointer`}
-            onClick={(e) => handleNoteClick(e, note.id)}
-          >
-            <div className="flex justify-between items-center">
-              <span className="note-content flex-grow pr-2">
-                {note.content}
-              </span>
-              <div className="flex items-center">
-                <button
-                  className={`note-btn bg-transparent p-1 rounded mr-2 ${
-                    note.priority ? "text-yellow-400" : "text-gray-400"
-                  } hover:text-yellow-500`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleNotePriority(note.id);
-                  }}
-                >
-                  <FaStar />
-                </button>
-                <button
-                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-textColor"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteNote(note.id);
-                  }}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {formatDate(note.createdAt)}
-            </div>
-          </div>
+            note={note}
+            onToggleCompletion={toggleNoteCompletion}
+            onTogglePriority={toggleNotePriority}
+            onDelete={deleteNote}
+          />
         ))}
       </div>
     </div>
