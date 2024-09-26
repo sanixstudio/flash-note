@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import "./NoteInput.css";
 
 interface NoteInputProps {
   noteInput: string;
@@ -7,6 +6,7 @@ interface NoteInputProps {
   onSaveNote: () => void;
   onCancel: () => void;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
+  onBlur: () => void;
 }
 
 const NoteInput: React.FC<NoteInputProps> = ({
@@ -15,10 +15,10 @@ const NoteInput: React.FC<NoteInputProps> = ({
   onSaveNote,
   onCancel,
   textareaRef,
+  onBlur,
 }) => {
   useEffect(() => {
     textareaRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -29,6 +29,7 @@ const NoteInput: React.FC<NoteInputProps> = ({
         value={noteInput}
         onChange={(e) => setNoteInput(e.target.value)}
         placeholder="Write your note here..."
+        onBlur={onBlur}
       />
       <div className="flex gap-4">
         <button

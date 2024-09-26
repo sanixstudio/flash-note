@@ -1,6 +1,5 @@
 import React from "react";
 import { FaEraser, FaPlus } from "react-icons/fa";
-import "./ActionBar.css";
 
 interface ActionBarProps {
   incompleteNotes: number;

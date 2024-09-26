@@ -1,7 +1,6 @@
 import React from "react";
 import { FaTrash, FaStar } from "react-icons/fa";
 import { Note } from "@/types";
-import "./NoteItem.css";
 import { formatDate } from "@/utils/dateUtils";
 
 interface NoteItemProps {

@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
-import Header from "./components/Header";
-import ActionBar from "./components/ActionBar";
-import NoteInput from "./components/NoteInput";
-import NoteItem from "./components/NoteItem";
+import React, { useState, useRef, useCallback } from "react";
+import Header from "./components/Header/Header";
+import ActionBar from "./components/ActionBar/ActionBar";
+import NoteInput from "./components/NoteInput/NoteInput";
+import NoteItem from "./components/NoteItem/NoteItem";
 import { useNotes } from "./hooks/useNotes";
 import "./App.css";
 
@@ -50,6 +50,19 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSearchBlur = useCallback(() => {
+    setSearchVisible(false);
+    setSearchTerm("");
+  }, []);
+
+  const handleNoteInputBlur = useCallback(() => {
+    if (noteInput.trim()) {
+      handleSaveNote();
+    } else {
+      setIsAddingNote(false);
+    }
+  }, [noteInput, handleSaveNote]);
+
   return (
     <div className="p-4 w-80 bg-bgColor text-textColor h-screen">
       {error && <div className="text-red-500 mb-2">{error}</div>}
@@ -68,6 +81,7 @@ const App: React.FC = () => {
             placeholder="Search notes..."
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
+            onBlur={handleSearchBlur}
           />
         </div>
       )}
@@ -85,10 +99,11 @@ const App: React.FC = () => {
           onSaveNote={handleSaveNote}
           onCancel={() => setIsAddingNote(false)}
           textareaRef={textareaRef}
+          onBlur={handleNoteInputBlur}
         />
       )}
 
-      <div id="notesList" className="overflow-y-auto h-64 scrollbar-hide">
+      <div id="notesList" className=" h-64 scrollbar-hide">
         {filteredNotes.map((note) => (
           <NoteItem
             key={note.id}

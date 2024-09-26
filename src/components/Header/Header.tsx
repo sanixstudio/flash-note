@@ -1,6 +1,5 @@
 import React from "react";
 import { FaSearch } from "react-icons/fa";
-import "./Header.css";
 
 interface HeaderProps {
   onSignIn: () => void;
