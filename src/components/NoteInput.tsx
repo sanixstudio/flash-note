@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 interface NoteInputProps {
   noteInput: string;
   setNoteInput: (value: string) => void;
   onSaveNote: () => void;
   onCancel: () => void;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
 }
 
 const NoteInput: React.FC<NoteInputProps> = ({
@@ -12,10 +13,16 @@ const NoteInput: React.FC<NoteInputProps> = ({
   setNoteInput,
   onSaveNote,
   onCancel,
+  textareaRef,
 }) => {
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
   return (
     <div id="inputContainer" className="mb-4">
       <textarea
+        ref={textareaRef}
         className="w-full p-2 bg-inputBg text-textColor border border-borderColor rounded mb-2 min-h-[80px] max-h-[200px] resize-vertical"
         value={noteInput}
         onChange={(e) => setNoteInput(e.target.value)}

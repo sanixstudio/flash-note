@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTrashAlt, FaPlus } from "react-icons/fa";
+import { FaEraser, FaPlus } from "react-icons/fa";
 
 interface ActionBarProps {
   incompleteNotes: number;
@@ -24,7 +24,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
           className="clear-all-btn bg-inputBg hover:bg-noteHover p-2 rounded-full transition-transform transform hover:scale-105"
           onClick={onClearAll}
         >
-          <FaTrashAlt className="text-textColor" />
+          <FaEraser className="text-textColor" />
         </button>
         <button
           className="toggle-note-btn small bg-buttonBg hover:bg-buttonHover p-2 rounded-full transition-transform transform hover:scale-105"

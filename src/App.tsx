@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { format } from "date-fns";
+import { format, isToday, isYesterday, isThisYear } from "date-fns";
 import { FaTrash } from "react-icons/fa";
 import Header from "./components/Header";
 import ActionBar from "./components/ActionBar";
@@ -134,9 +134,43 @@ const App: React.FC = () => {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isToday(date)) {
+      return `Today at ${format(date, "h:mm a")}`;
+    } else if (isYesterday(date)) {
+      return `Yesterday at ${format(date, "h:mm a")}`;
+    } else if (isThisYear(date)) {
+      return format(date, "MMM d 'at' h:mm a");
+    } else {
+      return format(date, "MMM d, yyyy 'at' h:mm a");
+    }
+  };
+
+  const toggleNoteInput = () => {
+    setIsAddingNote((prev) => !prev);
+    if (!isAddingNote && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 0);
+    }
+  };
+
+  const clearAllNotes = () => {
+    setNotes([]);
+    setIncompleteNotes(0);
+    saveNotes([]);
+  };
+
+  const handleNoteClick = (event: React.MouseEvent, id: number) => {
+    // Check if the click target is not the delete button
+    if (!(event.target as HTMLElement).closest(".note-btn")) {
+      toggleNoteCompletion(id);
+    }
+  };
 
   return (
-    <div className="p-4 w-80 bg-bgColor text-textColor">
+    <div className="p-4 w-80 bg-bgColor text-textColor h-screen">
       {error && <div className="text-red-500 mb-2">{error}</div>}
 
       <Header
@@ -159,8 +193,8 @@ const App: React.FC = () => {
 
       <ActionBar
         incompleteNotes={incompleteNotes}
-        onClearAll={() => saveNotes([])}
-        onToggleNoteInput={() => setIsAddingNote(!isAddingNote)}
+        onClearAll={clearAllNotes}
+        onToggleNoteInput={toggleNoteInput}
       />
 
       {isAddingNote && (
@@ -169,33 +203,38 @@ const App: React.FC = () => {
           setNoteInput={setNoteInput}
           onSaveNote={saveNote}
           onCancel={() => setIsAddingNote(false)}
+          textareaRef={textareaRef}
         />
       )}
 
-      <div id="notesList" className="overflow-y-auto max-h-60 scrollbar-hide">
+      <div id="notesList" className="overflow-y-auto h-64 scrollbar-hide">
         {filteredNotes.map((note) => (
           <div
             key={note.id}
             className={`note p-2 mb-2 bg-inputBg border border-borderColor rounded ${
               note.completed ? "opacity-completed line-through" : ""
-            } transition-transform transform hover:scale-105`}
+            } transition-transform transform hover:scale-105 cursor-pointer`}
+            onClick={(e) => handleNoteClick(e, note.id)}
           >
             <div className="flex justify-between items-center">
               <span
+                className="note-content flex-grow"
                 onClick={() => toggleNoteCompletion(note.id)}
-                className="note-content cursor-pointer flex-grow"
               >
                 {note.content}
               </span>
               <button
                 className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-textColor"
-                onClick={() => deleteNote(note.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteNote(note.id);
+                }}
               >
                 <FaTrash />
               </button>
             </div>
             <div className="text-xs text-gray-400 mt-1">
-              {format(new Date(note.createdAt), "MMM d, yyyy HH:mm")}
+              {formatDate(note.createdAt)}
             </div>
           </div>
         ))}
