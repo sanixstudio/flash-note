@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-
-// Define a Note type for better type safety
+import { FaTrash } from "react-icons/fa";
+import Header from "./components/Header";
+import ActionBar from "./components/ActionBar";
+import NoteInput from "./components/NoteInput";
+import "./App.css";
 interface Note {
   id: number;
   content: string;
@@ -14,15 +17,18 @@ const App: React.FC = () => {
   const [noteInput, setNoteInput] = useState<string>("");
   const [incompleteNotes, setIncompleteNotes] = useState<number>(0);
   const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
+  const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to check if Chrome API is available
-  const isChromeApiAvailable = () => {
-    return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+  const isChromeApiAvailable = (): boolean => {
+    return !!(
+      typeof chrome !== "undefined" &&
+      chrome.storage &&
+      chrome.storage.local
+    );
   };
 
-  // Function to get notes from storage
-  const getNotes = () => {
+  const getNotes = useCallback(() => {
     if (isChromeApiAvailable()) {
       chrome.storage.local.get("notes", (result) => {
         if (chrome.runtime.lastError) {
@@ -34,13 +40,14 @@ const App: React.FC = () => {
         setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
       });
     } else {
-      const savedNotes: Note[] = JSON.parse(localStorage.getItem("notes") || "[]");
+      const savedNotes: Note[] = JSON.parse(
+        localStorage.getItem("notes") || "[]"
+      );
       setNotes(savedNotes);
       setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
     }
-  };
+  }, []);
 
-  // Function to save notes to storage
   const saveNotes = (updatedNotes: Note[]) => {
     if (isChromeApiAvailable()) {
       chrome.storage.local.set({ notes: updatedNotes }, () => {
@@ -53,12 +60,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Load notes when the component mounts
-  useEffect(() => {
-    getNotes();
-  }, []);
-
-  // Function to save a new note
   const saveNote = () => {
     if (!noteInput.trim()) return;
 
@@ -78,7 +79,6 @@ const App: React.FC = () => {
     setIsAddingNote(false);
   };
 
-  // Function to delete a note by ID
   const deleteNote = (id: number) => {
     const updatedNotes = notes.filter((note) => note.id !== id);
     setNotes(updatedNotes);
@@ -86,7 +86,6 @@ const App: React.FC = () => {
     saveNotes(updatedNotes);
   };
 
-  // Function to toggle note completion
   const toggleNoteCompletion = (id: number) => {
     const updatedNotes = notes.map((note) =>
       note.id === id ? { ...note, completed: !note.completed } : note
@@ -96,54 +95,65 @@ const App: React.FC = () => {
     saveNotes(updatedNotes);
   };
 
+  useEffect(() => {
+    getNotes();
+  }, [getNotes]);
+
   return (
-    <div className="p-4 w-80 bg-gray-800 text-white rounded-lg">
+    <div className="p-4 w-80 bg-bgColor text-textColor">
       {error && <div className="text-red-500 mb-2">{error}</div>}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl">Flash Notes</h1>
-        <button
-          className="bg-green-500 p-2 rounded"
-          onClick={() => setIsAddingNote(!isAddingNote)}
-        >
-          {isAddingNote ? "Cancel" : "Add Note"}
-        </button>
-      </div>
-      {isAddingNote && (
+
+      <Header
+        onSignIn={() => console.log("Sign In")}
+        onSearchToggle={() => setSearchVisible(!searchVisible)}
+      />
+
+      {searchVisible && (
         <div className="mb-4">
-          <textarea
-            className="w-full p-2 bg-gray-700 text-white rounded mb-2"
-            value={noteInput}
-            onChange={(e) => setNoteInput(e.target.value)}
-            placeholder="Write your note here..."
+          <input
+            type="text"
+            className="search-input w-full p-2 bg-inputBg text-textColor rounded"
+            placeholder="Search notes..."
+            onChange={(e) => console.log("Search:", e.target.value)}
           />
-          <button className="bg-blue-500 w-full p-2 rounded" onClick={saveNote}>
-            Save Note
-          </button>
         </div>
       )}
-      <div className="mb-4">
-        <span className="text-yellow-400">Incomplete: {incompleteNotes}</span>
-      </div>
-      <div className="overflow-y-auto max-h-60">
+
+      <ActionBar
+        incompleteNotes={incompleteNotes}
+        onClearAll={() => saveNotes([])}
+        onToggleNoteInput={() => setIsAddingNote(!isAddingNote)}
+      />
+
+      {isAddingNote && (
+        <NoteInput
+          noteInput={noteInput}
+          setNoteInput={setNoteInput}
+          onSaveNote={saveNote}
+          onCancel={() => setIsAddingNote(false)}
+        />
+      )}
+
+      <div id="notesList" className="overflow-y-auto max-h-60 scrollbar-hide">
         {notes.map((note) => (
           <div
             key={note.id}
-            className={`p-2 bg-gray-700 mb-2 rounded ${
-              note.completed ? "opacity-50 line-through" : ""
-            }`}
+            className={`note p-2 mb-2 bg-inputBg border border-borderColor rounded ${
+              note.completed ? "opacity-completed line-through" : ""
+            } transition-transform transform hover:scale-105`}
           >
             <div className="flex justify-between items-center">
               <span
                 onClick={() => toggleNoteCompletion(note.id)}
-                className="cursor-pointer flex-grow"
+                className="note-content cursor-pointer flex-grow"
               >
                 {note.content}
               </span>
               <button
-                className="bg-red-500 p-1 rounded ml-2"
+                className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-textColor"
                 onClick={() => deleteNote(note.id)}
               >
-                Delete
+                <FaTrash />
               </button>
             </div>
             <div className="text-xs text-gray-400 mt-1">
