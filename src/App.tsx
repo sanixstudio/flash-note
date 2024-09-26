@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { format, isToday, isYesterday, isThisYear } from "date-fns";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaStar } from "react-icons/fa";
 import Header from "./components/Header";
 import ActionBar from "./components/ActionBar";
 import NoteInput from "./components/NoteInput";
 import "./App.css";
+
 interface Note {
   id: number;
   content: string;
   createdAt: string;
   completed: boolean;
+  priority: boolean;  // New field for priority
 }
 
 const App: React.FC = () => {
@@ -69,6 +71,7 @@ const App: React.FC = () => {
       content: noteInput.trim(),
       createdAt: new Date().toISOString(),
       completed: false,
+      priority: false,  // Default to non-priority
     };
 
     const updatedNotes = [...notes, newNote];
@@ -78,6 +81,14 @@ const App: React.FC = () => {
     saveNotes(updatedNotes);
     setNoteInput("");
     setIsAddingNote(false);
+  };
+
+  const toggleNotePriority = (id: number) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, priority: !note.priority } : note
+    );
+    setNotes(updatedNotes);
+    saveNotes(updatedNotes);
   };
 
   const deleteNote = (id: number) => {
@@ -213,25 +224,35 @@ const App: React.FC = () => {
             key={note.id}
             className={`note p-2 mb-2 bg-inputBg border border-borderColor rounded ${
               note.completed ? "opacity-completed line-through" : ""
-            } transition-transform transform hover:scale-105 cursor-pointer`}
+            } ${note.priority ? "border-yellow-400" : ""} transition-transform transform hover:scale-105 cursor-pointer`}
             onClick={(e) => handleNoteClick(e, note.id)}
           >
             <div className="flex justify-between items-center">
-              <span
-                className="note-content flex-grow"
-                onClick={() => toggleNoteCompletion(note.id)}
-              >
+              <span className="note-content flex-grow pr-2">
                 {note.content}
               </span>
-              <button
-                className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-textColor"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteNote(note.id);
-                }}
-              >
-                <FaTrash />
-              </button>
+              <div className="flex items-center">
+                <button
+                  className={`note-btn bg-transparent p-1 rounded mr-2 ${
+                    note.priority ? "text-yellow-400" : "text-gray-400"
+                  } hover:text-yellow-500`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleNotePriority(note.id);
+                  }}
+                >
+                  <FaStar />
+                </button>
+                <button
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-textColor"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteNote(note.id);
+                  }}
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </div>
             <div className="text-xs text-gray-400 mt-1">
               {formatDate(note.createdAt)}
