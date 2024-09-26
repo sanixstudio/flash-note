@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import Header from "./components/Header/Header";
 import ActionBar from "./components/ActionBar/ActionBar";
-import NoteInput from "./components/NoteInput/NoteInput";
 import NoteItem from "./components/NoteItem/NoteItem";
+import NoteInput from "./components/NoteInput/NoteInput";
 import { useNotes } from "./hooks/useNotes";
 import "./App.css";
 
@@ -42,26 +42,40 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSaveNote = () => {
+  const handleSaveNote = useCallback(() => {
     if (noteInput.trim()) {
       addNote(noteInput);
-      setNoteInput("");
-      setIsAddingNote(false);
     }
-  };
+  }, [noteInput, addNote]);
 
   const handleSearchBlur = useCallback(() => {
-    setSearchVisible(false);
-    setSearchTerm("");
-  }, []);
+    if (!searchTerm.trim()) {
+      setSearchVisible(false);
+      setSearchTerm("");
+    }
+  }, [searchTerm]);
 
   const handleNoteInputBlur = useCallback(() => {
     if (noteInput.trim()) {
       handleSaveNote();
     } else {
       setIsAddingNote(false);
+      setNoteInput("");
     }
   }, [noteInput, handleSaveNote]);
+
+  const handleSearchToggle = useCallback(() => {
+    setSearchVisible((prev) => !prev);
+    if (!searchVisible) {
+      setTimeout(() => searchInputRef.current?.focus(), 0);
+    }
+  }, [searchVisible]);
+
+  useEffect(() => {
+    if (searchVisible) {
+      searchInputRef.current?.focus();
+    }
+  }, [searchVisible]);
 
   return (
     <div className="p-4 w-80 bg-bgColor text-textColor h-screen">
@@ -69,7 +83,7 @@ const App: React.FC = () => {
 
       <Header
         onSignIn={() => console.log("Sign In")}
-        onSearchToggle={() => setSearchVisible(!searchVisible)}
+        onSearchToggle={handleSearchToggle}
       />
 
       {searchVisible && (
@@ -97,7 +111,10 @@ const App: React.FC = () => {
           noteInput={noteInput}
           setNoteInput={setNoteInput}
           onSaveNote={handleSaveNote}
-          onCancel={() => setIsAddingNote(false)}
+          onCancel={() => {
+            setIsAddingNote(false);
+            setNoteInput("");
+          }}
           textareaRef={textareaRef}
           onBlur={handleNoteInputBlur}
         />
