@@ -3,6 +3,7 @@ import Header from "./components/Header/Header";
 import ActionBar from "./components/ActionBar/ActionBar";
 import NoteItem from "./components/NoteItem/NoteItem";
 import NoteInput from "./components/NoteInput/NoteInput";
+import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
 import "./App.css";
 
@@ -80,7 +81,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check for Alt+Shift+N (Windows/Linux) or Option+Shift+N (Mac)
-      if (event.altKey && event.shiftKey && event.key === 'N') {
+      if (event.altKey && event.shiftKey && event.key === "N") {
         event.preventDefault(); // Prevent the default browser action
         setIsAddingNote(true);
         setTimeout(() => textareaRef.current?.focus(), 0);
@@ -88,58 +89,60 @@ const App: React.FC = () => {
     };
 
     // Add the event listener
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     // Remove the event listener on cleanup
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <div className="p-4 w-80 bg-bgColor text-textColor h-screen">
-      {error && <div className="text-red-500 mb-2">{error}</div>}
+    <div className="flex flex-col w-[350px] bg-bgColor text-textColor">
+      {error && <div className="text-red-500 p-2">{error}</div>}
 
-      <Header
-        onSignIn={() => console.log("Sign In")}
-        onSearchToggle={handleSearchToggle}
-      />
-
-      {searchVisible && (
-        <div ref={searchContainerRef} className="mb-4">
-          <input
-            ref={searchInputRef}
-            type="text"
-            className="search-input w-full p-2 bg-inputBg text-textColor rounded"
-            placeholder="Search notes..."
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            onBlur={handleSearchBlur}
-          />
-        </div>
-      )}
-
-      <ActionBar
-        incompleteNotes={incompleteNotes}
-        onClearAll={clearAllNotes}
-        onToggleNoteInput={toggleNoteInput}
-      />
-
-      {isAddingNote && (
-        <NoteInput
-          noteInput={noteInput}
-          setNoteInput={setNoteInput}
-          onSaveNote={handleSaveNote}
-          onCancel={() => {
-            setIsAddingNote(false);
-            setNoteInput("");
-          }}
-          textareaRef={textareaRef}
-          onBlur={handleNoteInputBlur}
+      <div className="p-4 flex-shrink-0">
+        <Header
+          onSignIn={() => console.log("Sign In")}
+          onSearchToggle={handleSearchToggle}
         />
-      )}
 
-      <div id="notesList" className=" h-64 scrollbar-hide">
+        {searchVisible && (
+          <div ref={searchContainerRef} className="mb-4">
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="search-input w-full p-2 bg-inputBg text-textColor rounded"
+              placeholder="Search notes..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              onBlur={handleSearchBlur}
+            />
+          </div>
+        )}
+
+        <ActionBar
+          incompleteNotes={incompleteNotes}
+          onClearAll={clearAllNotes}
+          onToggleNoteInput={toggleNoteInput}
+        />
+
+        {isAddingNote && (
+          <NoteInput
+            noteInput={noteInput}
+            setNoteInput={setNoteInput}
+            onSaveNote={handleSaveNote}
+            onCancel={() => {
+              setIsAddingNote(false);
+              setNoteInput("");
+            }}
+            textareaRef={textareaRef}
+            onBlur={handleNoteInputBlur}
+          />
+        )}
+      </div>
+
+      <ScrollArea className="flex flex-col items-center px-4 pb-4">
         {filteredNotes.map((note) => (
           <NoteItem
             key={note.id}
@@ -149,7 +152,7 @@ const App: React.FC = () => {
             onDelete={deleteNote}
           />
         ))}
-      </div>
+      </ScrollArea>
     </div>
   );
 };
