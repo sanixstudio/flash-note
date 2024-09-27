@@ -33,7 +33,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`note p-2 bg-inputBg border border-borderColor rounded w-full mb-2 ${
-            note.completed ? "opacity-50 line-through" : ""
+            note.completed ? "opacity-40 line-through" : ""
           } ${
             note.priority ? "border-yellow-400" : ""
           } transition-transform hover:scale-[1.02] cursor-pointer`}

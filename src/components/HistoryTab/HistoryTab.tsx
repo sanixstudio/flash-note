@@ -9,17 +9,20 @@ interface HistoryTabProps {
   onClearHistory: () => void;
 }
 
-const HistoryTab: React.FC<HistoryTabProps> = ({ deletedNotes, onClearHistory }) => {
+const HistoryTab: React.FC<HistoryTabProps> = ({
+  deletedNotes,
+  onClearHistory,
+}) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center px-4 py-2">
         <h2 className="text-lg font-semibold">Deleted Notes</h2>
         <button
-          className="flex items-center bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
+          className="flex items-center bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs transition-colors"
           onClick={onClearHistory}
         >
-          <FaTrash className="mr-2" />
-          Clear History
+          <FaTrash className="mr-1" size={10} />
+          Clear
         </button>
       </div>
       <ScrollArea className="flex-grow px-4 pb-4">
@@ -40,7 +43,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ deletedNotes, onClearHistory })
             </div>
           ))}
           {deletedNotes.length === 0 && (
-            <div className="text-center text-gray-400">No deleted notes in the last hour</div>
+            <div className="text-center text-gray-400">
+              No deleted notes in the last hour
+            </div>
           )}
         </div>
       </ScrollArea>
