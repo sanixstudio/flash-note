@@ -7,7 +7,7 @@ import NoteInput from "./components/NoteInput/NoteInput";
 import HistoryTab from "./components/HistoryTab/HistoryTab";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
-import { FaHistory } from "react-icons/fa";
+import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
 
 const App: React.FC = () => {
@@ -21,6 +21,7 @@ const App: React.FC = () => {
     toggleNoteCompletion,
     toggleNotePriority,
     clearAllNotes,
+    clearAllHistory,
     reorderNotes,
   } = useNotes();
 
@@ -83,6 +84,12 @@ const App: React.FC = () => {
       clearAllNotes();
     }
   }, [clearAllNotes]);
+
+  const handleClearAllHistory = useCallback(() => {
+    if (window.confirm("Are you sure you want to clear all deleted notes?")) {
+      clearAllHistory();
+    }
+  }, [clearAllHistory]);
 
   useEffect(() => {
     if (searchVisible) {
@@ -186,25 +193,34 @@ const App: React.FC = () => {
           </ScrollArea>
         </DragDropContext>
       ) : (
-        <HistoryTab deletedNotes={deletedNotes} />
+        <HistoryTab
+          deletedNotes={deletedNotes}
+          onClearHistory={handleClearAllHistory}
+        />
       )}
 
-      <div className="flex justify-center items-center p-2 border-t border-borderColor">
+      <div className="flex justify-center items-center py-2 border-t border-borderColor">
         <button
-          className={`p-2 mx-2 rounded-full ${
-            activeTab === "notes" ? "bg-buttonBg" : "bg-inputBg"
-          }`}
+          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-sm ${
+            activeTab === "notes"
+              ? "bg-gray-600 text-textColor"
+              : "text-gray-400"
+          } hover:bg-buttonHover transition-colors`}
           onClick={() => setActiveTab("notes")}
         >
+          <FaStickyNote className="mr-1" size={12} />
           Notes
         </button>
         <button
-          className={`p-2 mx-2 rounded-full ${
-            activeTab === "history" ? "bg-buttonBg" : "bg-inputBg"
-          }`}
+          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-sm ${
+            activeTab === "history"
+              ? "bg-gray-600 text-textColor"
+              : "text-gray-400"
+          } hover:bg-buttonHover transition-colors`}
           onClick={() => setActiveTab("history")}
         >
-          <FaHistory />
+          <FaHistory className="mr-1" size={12} />
+          History
         </button>
       </div>
     </div>

@@ -1,9 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Note } from "../types";
-
-interface DeletedNote extends Note {
-  deletedAt: string;
-}
+import { Note, DeletedNote } from "../types";
 
 export const useNotes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -146,6 +142,10 @@ export const useNotes = () => {
     );
   }, []);
 
+  const clearAllHistory = useCallback(() => {
+    setDeletedNotes([]);
+  }, []);
+
   useEffect(() => {
     getNotes();
     const interval = setInterval(clearOldDeletedNotes, 5 * 60 * 1000); // Run every 5 minutes
@@ -162,6 +162,7 @@ export const useNotes = () => {
     toggleNoteCompletion,
     toggleNotePriority,
     clearAllNotes,
+    clearAllHistory,
     reorderNotes,
   };
 };
