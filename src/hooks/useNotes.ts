@@ -14,6 +14,20 @@ export const useNotes = () => {
     );
   };
 
+  const updateBadge = useCallback((count: number) => {
+    if (isChromeApiAvailable()) {
+      chrome.runtime.sendMessage({ action: "updateBadge", count });
+    }
+  }, []);
+
+  const setIncompleteNotesAndUpdateBadge = useCallback(
+    (count: number) => {
+      setIncompleteNotes(count);
+      updateBadge(count);
+    },
+    [updateBadge]
+  );
+
   const getNotes = useCallback(() => {
     if (isChromeApiAvailable()) {
       chrome.storage.local.get("notes", (result) => {
@@ -23,16 +37,22 @@ export const useNotes = () => {
         }
         const savedNotes: Note[] = result.notes || [];
         setNotes(savedNotes);
-        setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
+        const incompleteCount = savedNotes.filter(
+          (note) => !note.completed
+        ).length;
+        setIncompleteNotesAndUpdateBadge(incompleteCount);
       });
     } else {
       const savedNotes: Note[] = JSON.parse(
         localStorage.getItem("notes") || "[]"
       );
       setNotes(savedNotes);
-      setIncompleteNotes(savedNotes.filter((note) => !note.completed).length);
+      const incompleteCount = savedNotes.filter(
+        (note) => !note.completed
+      ).length;
+      setIncompleteNotesAndUpdateBadge(incompleteCount);
     }
-  }, []);
+  }, [setIncompleteNotesAndUpdateBadge]);
 
   const saveNotes = (updatedNotes: Note[]) => {
     if (isChromeApiAvailable()) {
@@ -56,14 +76,18 @@ export const useNotes = () => {
     };
     const updatedNotes = [newNote, ...notes]; // Add new note at the beginning
     setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
+    setIncompleteNotesAndUpdateBadge(
+      updatedNotes.filter((note) => !note.completed).length
+    );
     saveNotes(updatedNotes);
   };
 
   const deleteNote = (id: number) => {
     const updatedNotes = notes.filter((note) => note.id !== id);
     setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
+    setIncompleteNotesAndUpdateBadge(
+      updatedNotes.filter((note) => !note.completed).length
+    );
     saveNotes(updatedNotes);
   };
 
@@ -72,7 +96,9 @@ export const useNotes = () => {
       note.id === id ? { ...note, completed: !note.completed } : note
     );
     setNotes(updatedNotes);
-    setIncompleteNotes(updatedNotes.filter((note) => !note.completed).length);
+    setIncompleteNotesAndUpdateBadge(
+      updatedNotes.filter((note) => !note.completed).length
+    );
     saveNotes(updatedNotes);
   };
 
@@ -86,7 +112,7 @@ export const useNotes = () => {
 
   const clearAllNotes = () => {
     setNotes([]);
-    setIncompleteNotes(0);
+    setIncompleteNotesAndUpdateBadge(0);
     saveNotes([]);
   };
 
