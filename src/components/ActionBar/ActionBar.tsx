@@ -23,6 +23,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
         <button
           className="clear-all-btn bg-inputBg hover:bg-noteHover p-2 rounded-full transition-transform transform hover:scale-105"
           onClick={onClearAll}
+          title="Clear all notes"
         >
           <FaEraser className="text-textColor" />
         </button>

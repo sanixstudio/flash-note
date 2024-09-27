@@ -74,6 +74,12 @@ const App: React.FC = () => {
     }
   }, [searchVisible]);
 
+  const handleClearAll = useCallback(() => {
+    if (window.confirm("Are you sure you want to clear all notes?")) {
+      clearAllNotes();
+    }
+  }, [clearAllNotes]);
+
   useEffect(() => {
     if (searchVisible) {
       searchInputRef.current?.focus();
@@ -82,22 +88,19 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Alt+Shift+N (Windows/Linux) or Option+Shift+N (Mac)
       if (event.altKey && event.shiftKey && event.key === "N") {
-        event.preventDefault(); // Prevent the default browser action
+        event.preventDefault();
         setIsAddingNote(true);
         setTimeout(() => textareaRef.current?.focus(), 0);
       }
     };
 
-    // Add the event listener
     window.addEventListener("keydown", handleKeyDown);
 
-    // Remove the event listener on cleanup
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
@@ -133,7 +136,7 @@ const App: React.FC = () => {
 
         <ActionBar
           incompleteNotes={incompleteNotes}
-          onClearAll={clearAllNotes}
+          onClearAll={handleClearAll}
           onToggleNoteInput={toggleNoteInput}
         />
 
