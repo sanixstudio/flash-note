@@ -1,8 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { Note } from "../types";
 
+interface DeletedNote extends Note {
+  deletedAt: string;
+}
+
 export const useNotes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
+  const [deletedNotes, setDeletedNotes] = useState<DeletedNote[]>([]);
   const [incompleteNotes, setIncompleteNotes] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,12 +88,21 @@ export const useNotes = () => {
   };
 
   const deleteNote = (id: number) => {
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
-    setIncompleteNotesAndUpdateBadge(
-      updatedNotes.filter((note) => !note.completed).length
-    );
-    saveNotes(updatedNotes);
+    const noteToDelete = notes.find((note) => note.id === id);
+    if (noteToDelete) {
+      const updatedNotes = notes.filter((note) => note.id !== id);
+      setNotes(updatedNotes);
+      setIncompleteNotesAndUpdateBadge(
+        updatedNotes.filter((note) => !note.completed).length
+      );
+      saveNotes(updatedNotes);
+
+      const deletedNote: DeletedNote = {
+        ...noteToDelete,
+        deletedAt: new Date().toISOString(),
+      };
+      setDeletedNotes((prev) => [deletedNote, ...prev]);
+    }
   };
 
   const toggleNoteCompletion = (id: number) => {
@@ -125,12 +139,22 @@ export const useNotes = () => {
     saveNotes(result);
   };
 
+  const clearOldDeletedNotes = useCallback(() => {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    setDeletedNotes((prev) =>
+      prev.filter((note) => new Date(note.deletedAt) > oneHourAgo)
+    );
+  }, []);
+
   useEffect(() => {
     getNotes();
-  }, [getNotes]);
+    const interval = setInterval(clearOldDeletedNotes, 5 * 60 * 1000); // Run every 5 minutes
+    return () => clearInterval(interval);
+  }, [getNotes, clearOldDeletedNotes]);
 
   return {
     notes,
+    deletedNotes,
     incompleteNotes,
     error,
     addNote,

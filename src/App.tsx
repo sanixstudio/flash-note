@@ -4,13 +4,16 @@ import Header from "./components/Header/Header";
 import ActionBar from "./components/ActionBar/ActionBar";
 import NoteItem from "./components/NoteItem/NoteItem";
 import NoteInput from "./components/NoteInput/NoteInput";
+import HistoryTab from "./components/HistoryTab/HistoryTab";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
+import { FaHistory } from "react-icons/fa";
 import "./App.css";
 
 const App: React.FC = () => {
   const {
     notes,
+    deletedNotes,
     incompleteNotes,
     error,
     addNote,
@@ -25,6 +28,7 @@ const App: React.FC = () => {
   const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"notes" | "history">("notes");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -155,31 +159,54 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <ScrollArea className="flex-grow px-4 pb-4">
-          <Droppable droppableId="notes">
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-2"
-              >
-                {filteredNotes.map((note, index) => (
-                  <NoteItem
-                    key={note.id}
-                    note={note}
-                    index={index}
-                    onToggleCompletion={toggleNoteCompletion}
-                    onTogglePriority={toggleNotePriority}
-                    onDelete={deleteNote}
-                  />
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </ScrollArea>
-      </DragDropContext>
+      {activeTab === "notes" ? (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <ScrollArea className="flex-grow px-4 pb-4">
+            <Droppable droppableId="notes">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-2"
+                >
+                  {filteredNotes.map((note, index) => (
+                    <NoteItem
+                      key={note.id}
+                      note={note}
+                      index={index}
+                      onToggleCompletion={toggleNoteCompletion}
+                      onTogglePriority={toggleNotePriority}
+                      onDelete={deleteNote}
+                    />
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </ScrollArea>
+        </DragDropContext>
+      ) : (
+        <HistoryTab deletedNotes={deletedNotes} />
+      )}
+
+      <div className="flex justify-center items-center p-2 border-t border-borderColor">
+        <button
+          className={`p-2 mx-2 rounded-full ${
+            activeTab === "notes" ? "bg-buttonBg" : "bg-inputBg"
+          }`}
+          onClick={() => setActiveTab("notes")}
+        >
+          Notes
+        </button>
+        <button
+          className={`p-2 mx-2 rounded-full ${
+            activeTab === "history" ? "bg-buttonBg" : "bg-inputBg"
+          }`}
+          onClick={() => setActiveTab("history")}
+        >
+          <FaHistory />
+        </button>
+      </div>
     </div>
   );
 };

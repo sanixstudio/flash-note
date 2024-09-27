@@ -5,3 +5,7 @@ export interface Note {
   completed: boolean;
   priority: boolean;
 }
+
+export interface DeletedNote extends Note {
+  deletedAt: string;
+}
