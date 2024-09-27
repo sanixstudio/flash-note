@@ -1,50 +1,95 @@
-# React + TypeScript + Vite
+# Flash Notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Flash Notes is a simple and efficient Chrome extension for quick note-taking and task management. It allows users to create, manage, and organize notes with ease, right from their browser.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Create and manage notes quickly
+- Mark notes as complete or priority
+- Drag and drop to reorder notes
+- Search functionality
+- History tab for recently deleted notes
+- Keyboard shortcut for quick note creation
+- Badge counter for incomplete notes
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+1. Clone the repository:
 
-- Configure the top-level `parserOptions` property like this:
+   ```bash
+   git clone https://github.com/sanixsutdio/flash-notes.git
+   ```
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2. Navigate to the project directory:
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+   ```bash
+   cd flash-notes
+   ```
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+3. Install dependencies:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   ```bash
+   npm install
+   ```
+
+4. Build the project:
+
+   ```bash
+   npm run build
+   ```
+
+5. Load the extension in Chrome:
+   - Open Chrome and go to `chrome://extensions/`
+   - Enable "Developer mode" in the top right corner
+   - Click "Load unpacked" and select the `dist` folder from the project directory
+
+## Usage
+
+### Creating a Note
+
+- Click the extension icon to open the popup
+- Use the "+" button or press Alt+Shift+N (Option+Shift+N on Mac) to create a new note
+- Type your note and click "Save" or press Enter
+
+### Managing Notes
+
+- Click a note to mark it as complete/incomplete
+- Use the star icon to toggle priority
+- Use the trash icon to delete a note
+- Drag and drop notes to reorder them
+
+### Searching Notes
+
+- Click the search icon in the header to open the search bar
+- Type to filter notes in real-time
+
+### Viewing Deleted Notes
+
+- Click the "History" tab at the bottom to view recently deleted notes
+- Deleted notes are kept for one hour before being permanently removed
+
+### Clearing Notes
+
+- Use the eraser icon to clear all notes (with confirmation)
+- In the History tab, use the "Clear" button to remove all deleted notes
+
+## Development
+
+### Project Structure
+
+- `src/`: Source files
+  - `components/`: React components
+  - `hooks/`: Custom React hooks
+  - `types/`: TypeScript type definitions
+  - `utils/`: Utility functions
+- `public/`: Public assets and manifest file
+- `dist/`: Built files (generated after build)
+
+### Key Components
+
+- `App.tsx`: Main application component
+- `NoteItem.tsx`: Individual note component
+- `HistoryTab.tsx`: Deleted notes history component
+- `useNotes.ts`: Custom hook for note management logic
+
+### Building for Production
