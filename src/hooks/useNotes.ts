@@ -152,6 +152,14 @@ export const useNotes = () => {
     return () => clearInterval(interval);
   }, [getNotes, clearOldDeletedNotes]);
 
+  const editNote = useCallback((id: number, newContent: string) => {
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note.id === id ? { ...note, content: newContent } : note
+      )
+    );
+  }, []);
+
   return {
     notes,
     deletedNotes,
@@ -164,5 +172,6 @@ export const useNotes = () => {
     clearAllNotes,
     clearAllHistory,
     reorderNotes,
+    editNote,
   };
 };

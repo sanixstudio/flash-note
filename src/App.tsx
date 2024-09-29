@@ -24,6 +24,7 @@ const App: React.FC = () => {
     clearAllNotes,
     clearAllHistory,
     reorderNotes,
+    editNote, // Add this line
   } = useNotes();
 
   const [noteInput, setNoteInput] = useState<string>("");
@@ -139,6 +140,13 @@ const App: React.FC = () => {
     [toast]
   );
 
+  const handleEditNote = useCallback(
+    (id: number, newContent: string) => {
+      editNote(id, newContent);
+    },
+    [editNote]
+  );
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
@@ -211,6 +219,7 @@ const App: React.FC = () => {
                       onTogglePriority={toggleNotePriority}
                       onDelete={deleteNote}
                       onCopy={handleCopyNote}
+                      onEdit={handleEditNote} // Add this line
                     />
                   ))}
                   {provided.placeholder}
