@@ -9,6 +9,7 @@ import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
 import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
+import { useToast } from "./hooks/use-toast";
 
 const App: React.FC = () => {
   const {
@@ -113,6 +114,31 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const { toast } = useToast();
+
+  const handleCopyNote = useCallback(
+    (content: string) => {
+      navigator.clipboard.writeText(content).then(
+        () => {
+          toast({
+            title: "Note copied",
+            description: "The note has been copied to your clipboard.",
+          });
+        },
+        (err) => {
+          console.error("Could not copy text: ", err);
+          toast({
+            variant: "destructive",
+            title: "Failed to copy note",
+            description:
+              "An error occurred while copying the note to clipboard.",
+          });
+        }
+      );
+    },
+    [toast]
+  );
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
@@ -184,6 +210,7 @@ const App: React.FC = () => {
                       onToggleCompletion={toggleNoteCompletion}
                       onTogglePriority={toggleNotePriority}
                       onDelete={deleteNote}
+                      onCopy={handleCopyNote}
                     />
                   ))}
                   {provided.placeholder}

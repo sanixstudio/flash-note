@@ -1,8 +1,9 @@
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { FaTrash, FaStar } from "react-icons/fa";
+import { FaTrash, FaStar, FaCopy } from "react-icons/fa";
 import { Note } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { useToast } from "@/hooks/use-toast"; // Make sure this import is correct
 
 interface NoteItemProps {
   note: Note;
@@ -10,6 +11,7 @@ interface NoteItemProps {
   onToggleCompletion: (id: number) => void;
   onTogglePriority: (id: number) => void;
   onDelete: (id: number) => void;
+  onCopy: (content: string) => void;
 }
 
 const NoteItem: React.FC<NoteItemProps> = ({
@@ -18,11 +20,25 @@ const NoteItem: React.FC<NoteItemProps> = ({
   onToggleCompletion,
   onTogglePriority,
   onDelete,
+  onCopy,
 }) => {
+  const { toast } = useToast();
+
   const handleNoteClick = (event: React.MouseEvent) => {
     if (!(event.target as HTMLElement).closest(".note-btn")) {
       onToggleCompletion(note.id);
     }
+  };
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCopy(note.content);
+    toast({
+      title: "Copied",
+      description: "Note content copied to clipboard",
+      variant: "success",
+      duration: 500, // half second
+    });
   };
 
   return (
@@ -63,6 +79,12 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 }}
               >
                 <FaTrash size={14} />
+              </button>
+              <button
+                className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-200 transition-colors"
+                onClick={handleCopy}
+              >
+                <FaCopy size={14} />
               </button>
             </div>
           </div>
