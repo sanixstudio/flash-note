@@ -1,14 +1,16 @@
 export interface Note {
   id: number;
-  content: string;
-  createdAt: string;
+  content: string; // This is now HTML content
   completed: boolean;
   priority: boolean;
+  pinned: boolean;
+  createdAt: Date;
 }
 
 export interface DeletedNote extends Note {
   deletedAt: string;
 }
+
 export interface NoteItemProps {
   note: Note;
   index: number;
@@ -17,5 +19,6 @@ export interface NoteItemProps {
   onDelete: (id: number) => void;
   onCopy: (content: string) => void;
   onEdit: (id: number, newContent: string) => void;
+  onTogglePin: (id: number) => void;
 }
 

@@ -1,12 +1,11 @@
-import React, { useEffect } from "react";
+import React from 'react';
 
 interface NoteInputProps {
   noteInput: string;
-  setNoteInput: (value: string) => void;
+  setNoteInput: React.Dispatch<React.SetStateAction<string>>;
   onSaveNote: () => void;
   onCancel: () => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  onBlur: () => void; // Add this line
+  onBlur: () => void;
 }
 
 const NoteInput: React.FC<NoteInputProps> = ({
@@ -14,38 +13,30 @@ const NoteInput: React.FC<NoteInputProps> = ({
   setNoteInput,
   onSaveNote,
   onCancel,
-  textareaRef,
-  onBlur, // Add this line
+  onBlur
 }) => {
-  useEffect(() => {
-    textareaRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <div id="inputContainer" className="mb-4">
+    <div className="mb-2">
       <textarea
-        ref={textareaRef}
-        className="w-full p-2 bg-inputBg text-textColor border border-borderColor rounded mb-2 min-h-[80px] max-h-[200px] resize-vertical"
+        className="w-full p-2 bg-inputBg text-textColor border border-borderColor rounded"
+        rows={3}
         value={noteInput}
         onChange={(e) => setNoteInput(e.target.value)}
-        placeholder="Write your note here..."
-        onBlur={onBlur} // Add this line
+        onBlur={onBlur}
+        placeholder="Enter your note..."
       />
-      <div className="flex gap-4">
+      <div className="flex justify-end mt-2">
         <button
-          id="cancelNote"
-          className="w-full bg-inputBg text-textColor p-2 rounded hover:bg-noteHover"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-        <button
-          id="saveNote"
-          className="w-full bg-buttonBg text-textColor p-2 rounded hover:bg-buttonHover"
+          className="px-3 py-1 bg-green-500 text-white rounded mr-2"
           onClick={onSaveNote}
         >
           Save
+        </button>
+        <button
+          className="px-3 py-1 bg-red-500 text-white rounded"
+          onClick={onCancel}
+        >
+          Cancel
         </button>
       </div>
     </div>

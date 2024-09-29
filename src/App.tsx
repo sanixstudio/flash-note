@@ -24,7 +24,8 @@ const App: React.FC = () => {
     clearAllNotes,
     clearAllHistory,
     reorderNotes,
-    editNote, // Add this line
+    editNote,
+    toggleNotePin,
   } = useNotes();
 
   const [noteInput, setNoteInput] = useState<string>("");
@@ -41,9 +42,16 @@ const App: React.FC = () => {
     setSearchTerm(term);
   };
 
-  const filteredNotes = notes.filter((note) =>
-    note.content.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Update the filteredNotes to sort pinned notes to the top and include category filtering
+  const filteredNotes = notes
+    .filter((note) =>
+      note.content.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return 0;
+    });
 
   const toggleNoteInput = () => {
     setIsAddingNote((prev) => !prev);
@@ -156,21 +164,31 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor">
-      {error && <div className="text-red-500 p-2">{error}</div>}
+    <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor text-sm">
+      <style>
+        {`
+          :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --input-bg: #2a2a2a;
+            --border-color: #3a3a3a;
+            --button-bg: #3a3a3a;
+            --button-hover: #4a4a4a;
+            --note-hover: #2a2a2a;
+          }
+        `}
+      </style>
+      {error && <div className="text-red-500 p-1 text-xs">{error}</div>}
 
-      <div className="p-4 flex-shrink-0">
-        <Header
-          onSignIn={() => console.log("Sign In")}
-          onSearchToggle={handleSearchToggle}
-        />
+      <div className="p-2 flex-shrink-0">
+        <Header onSearchToggle={handleSearchToggle} />
 
         {searchVisible && (
-          <div ref={searchContainerRef} className="mb-4">
+          <div ref={searchContainerRef} className="mb-2">
             <input
               ref={searchInputRef}
               type="text"
-              className="search-input w-full p-2 bg-inputBg text-textColor rounded"
+              className="search-input w-full p-1 bg-inputBg text-textColor rounded text-sm"
               placeholder="Search notes..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
@@ -179,11 +197,15 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <ActionBar
-          incompleteNotes={incompleteNotes}
-          onClearAll={handleClearAll}
-          onToggleNoteInput={toggleNoteInput}
-        />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center flex-grow">
+            <ActionBar
+              incompleteNotes={incompleteNotes}
+              onClearAll={handleClearAll}
+              onToggleNoteInput={toggleNoteInput}
+            />
+          </div>
+        </div>
 
         {isAddingNote && (
           <NoteInput
@@ -194,7 +216,6 @@ const App: React.FC = () => {
               setIsAddingNote(false);
               setNoteInput("");
             }}
-            textareaRef={textareaRef}
             onBlur={handleNoteInputBlur}
           />
         )}
@@ -202,13 +223,13 @@ const App: React.FC = () => {
 
       {activeTab === "notes" ? (
         <DragDropContext onDragEnd={onDragEnd}>
-          <ScrollArea className="flex-grow px-4 pb-4">
+          <ScrollArea className="flex-grow px-2 pb-2">
             <Droppable droppableId="notes">
               {(provided) => (
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="space-y-2"
+                  className="space-y-4"
                 >
                   {filteredNotes.map((note, index) => (
                     <NoteItem
@@ -219,7 +240,8 @@ const App: React.FC = () => {
                       onTogglePriority={toggleNotePriority}
                       onDelete={deleteNote}
                       onCopy={handleCopyNote}
-                      onEdit={handleEditNote} // Add this line
+                      onEdit={handleEditNote}
+                      onTogglePin={toggleNotePin}
                     />
                   ))}
                   {provided.placeholder}
@@ -235,27 +257,27 @@ const App: React.FC = () => {
         />
       )}
 
-      <div className="flex justify-center items-center py-2 border-t border-borderColor">
+      <div className="flex justify-center items-center py-1 border-t border-borderColor">
         <button
-          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-sm ${
+          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-xs ${
             activeTab === "notes"
               ? "bg-gray-600 text-textColor"
               : "text-gray-400"
           } hover:bg-buttonHover transition-colors`}
           onClick={() => setActiveTab("notes")}
         >
-          <FaStickyNote className="mr-1" size={12} />
+          <FaStickyNote className="mr-1" size={10} />
           Notes
         </button>
         <button
-          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-sm ${
+          className={`flex items-center justify-center p-1 px-2 mx-1 rounded text-xs ${
             activeTab === "history"
               ? "bg-gray-600 text-textColor"
               : "text-gray-400"
           } hover:bg-buttonHover transition-colors`}
           onClick={() => setActiveTab("history")}
         >
-          <FaHistory className="mr-1" size={12} />
+          <FaHistory className="mr-1" size={10} />
           History
         </button>
       </div>

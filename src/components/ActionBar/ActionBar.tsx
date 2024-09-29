@@ -13,13 +13,13 @@ const ActionBar: React.FC<ActionBarProps> = ({
   onToggleNoteInput,
 }) => {
   return (
-    <div className="stats-container flex justify-between items-center mb-4">
+    <div className="stats-container flex justify-between items-center">
       <div className="note-stats">
         <span id="incompleteNotes" className="text-yellow-400">
           Incomplete: {incompleteNotes}
         </span>
       </div>
-      <div className="action-buttons flex items-center gap-2">
+      <div className="action-buttons flex items-center gap-2 ml-4">
         <button
           className="clear-all-btn bg-inputBg hover:bg-noteHover p-2 rounded-full transition-transform transform hover:scale-105"
           onClick={onClearAll}
