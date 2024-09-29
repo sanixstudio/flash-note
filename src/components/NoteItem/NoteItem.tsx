@@ -3,7 +3,7 @@ import { Draggable } from "react-beautiful-dnd";
 import { FaTrash, FaStar, FaCopy } from "react-icons/fa";
 import { Note } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-import { useToast } from "@/hooks/use-toast"; // Make sure this import is correct
+import { useToast } from "@/hooks/use-toast";
 
 interface NoteItemProps {
   note: Note;
@@ -30,13 +30,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
     }
   };
 
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCopy = () => {
     onCopy(note.content);
     toast({
       title: "Copied",
       description: "Note content copied to clipboard",
-      variant: "success",
       duration: 500, // half second
     });
   };
@@ -59,9 +57,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
             <span className="note-content flex-grow pr-2 break-words">
               {note.content}
             </span>
-            <div className="flex items-center flex-shrink-0">
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <div className="text-xs text-gray-400">
+              {formatDate(note.createdAt)}
+            </div>
+            <div className="flex space-x-2">
               <button
-                className={`note-btn bg-transparent p-1 rounded mr-1 ${
+                className={`note-btn bg-transparent p-1 rounded ${
                   note.priority ? "text-yellow-400" : "text-gray-400"
                 } hover:text-yellow-500`}
                 onClick={(e) => {
@@ -81,15 +84,15 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 <FaTrash size={14} />
               </button>
               <button
-                className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-200 transition-colors"
-                onClick={handleCopy}
+                className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-blue-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopy();
+                }}
               >
                 <FaCopy size={14} />
               </button>
             </div>
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            {formatDate(note.createdAt)}
           </div>
         </div>
       )}
