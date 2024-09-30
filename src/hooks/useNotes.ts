@@ -7,19 +7,22 @@ export const useNotes = () => {
   const [incompleteNotes, setIncompleteNotes] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
-  const isChromeApiAvailable = (): boolean => {
+  const isChromeApiAvailable = useCallback((): boolean => {
     return !!(
       typeof chrome !== "undefined" &&
       chrome.storage &&
       chrome.storage.local
     );
-  };
-
-  const updateBadge = useCallback((count: number) => {
-    if (isChromeApiAvailable()) {
-      chrome.runtime.sendMessage({ action: "updateBadge", count });
-    }
   }, []);
+
+  const updateBadge = useCallback(
+    (count: number) => {
+      if (isChromeApiAvailable()) {
+        chrome.runtime.sendMessage({ action: "updateBadge", count });
+      }
+    },
+    [isChromeApiAvailable]
+  );
 
   const setIncompleteNotesAndUpdateBadge = useCallback(
     (count: number) => {
@@ -27,6 +30,26 @@ export const useNotes = () => {
       updateBadge(count);
     },
     [updateBadge]
+  );
+
+  const saveNotes = useCallback(
+    (updatedNotes: Note[]) => {
+      const notesToSave = updatedNotes.map((note) => ({
+        ...note,
+        createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt.toISOString(),
+      }));
+      if (isChromeApiAvailable()) {
+        chrome.storage.local.set({ notes: notesToSave }, () => {
+          if (chrome.runtime.lastError) {
+            setError("Error saving notes: " + chrome.runtime.lastError.message);
+          }
+        });
+      } else {
+        localStorage.setItem("notes", JSON.stringify(notesToSave));
+      }
+    },
+    [isChromeApiAvailable, setError]
   );
 
   const getNotes = useCallback(() => {
@@ -61,23 +84,8 @@ export const useNotes = () => {
       ).length;
       setIncompleteNotesAndUpdateBadge(incompleteCount);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setIncompleteNotesAndUpdateBadge]);
-
-  const saveNotes = (updatedNotes: Note[]) => {
-    const notesToSave = updatedNotes.map((note) => ({
-      ...note,
-      createdAt: note.createdAt.toISOString(),
-    }));
-    if (isChromeApiAvailable()) {
-      chrome.storage.local.set({ notes: notesToSave }, () => {
-        if (chrome.runtime.lastError) {
-          setError("Error saving notes: " + chrome.runtime.lastError.message);
-        }
-      });
-    } else {
-      localStorage.setItem("notes", JSON.stringify(notesToSave));
-    }
-  };
 
   const addNote = (content: string) => {
     const newNote: Note = {
@@ -168,16 +176,17 @@ export const useNotes = () => {
 
   const editNote = useCallback(
     (id: number, newContent: string) => {
-      setNotes((prevNotes) =>
-        prevNotes.map((note) =>
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
           note.id === id
             ? { ...note, content: newContent, updatedAt: new Date() }
             : note
-        )
-      );
-      saveNotes(notes); // Make sure to save the updated notes
+        );
+        saveNotes(updatedNotes);
+        return updatedNotes;
+      });
     },
-    [notes, saveNotes]
+    [saveNotes]
   );
 
   const toggleNotePin = useCallback((id: number) => {

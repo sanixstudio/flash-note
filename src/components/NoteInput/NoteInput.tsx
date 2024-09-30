@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -10,13 +10,13 @@ interface NoteInputProps {
   onBlur: () => void;
 }
 
-const NoteInput: React.FC<NoteInputProps> = ({
+const NoteInput = forwardRef<ReactQuill, NoteInputProps>(({
   noteInput,
   setNoteInput,
   onSaveNote,
   onCancel,
   onBlur,
-}) => {
+}, ref) => {
   const quillModules = {
     toolbar: [
       ["bold", "italic", "underline", "strike"],
@@ -68,6 +68,7 @@ const NoteInput: React.FC<NoteInputProps> = ({
         `}
       </style>
       <ReactQuill
+        ref={ref}
         theme="snow"
         value={noteInput}
         onChange={setNoteInput}
@@ -79,13 +80,13 @@ const NoteInput: React.FC<NoteInputProps> = ({
       />
       <div className="flex justify-end mt-2 space-x-2">
         <button
-          className="px-3 py-1 bg-green-500 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
+          className="px-3 py-1 bg-gray-600 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
           onClick={onSaveNote}
         >
           Save
         </button>
         <button
-          className="px-3 py-1 bg-red-500 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
+          className="px-3 py-1 bg-gray-500 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
           onClick={onCancel}
         >
           Cancel
@@ -93,6 +94,6 @@ const NoteInput: React.FC<NoteInputProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default NoteInput;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import {
   FaTrash,
@@ -40,6 +40,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note.content);
+  const quillRef = useRef<ReactQuill>(null);
+
+  useEffect(() => {
+    if (isEditing && quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      quill.focus();
+    }
+  }, [isEditing]);
 
   const handleNoteClick = (event: React.MouseEvent) => {
     if (!(event.target as HTMLElement).closest(".note-btn")) {
@@ -100,9 +108,9 @@ const NoteItem: React.FC<NoteItemProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`note bg-bgColor border border-borderColor rounded w-full mb-2 relative ${
-            note.completed ? "opacity-40 line-through" : ""
-          } ${note.priority ? "border-yellow-400 bg-yellow-400/10" : ""} ${
-            note.pinned ? "border-blue-400 bg-blue-400/10" : ""
+            note.completed ? "opacity-40" : ""
+          } ${note.priority ? "border-gray-400 bg-gray-700/30" : ""} ${
+            note.pinned ? "border-gray-300 bg-gray-600/30" : ""
           } transition-transform hover:scale-[1.02] cursor-pointer group`}
           onClick={isEditing ? undefined : handleNoteClick}
         >
@@ -150,7 +158,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 color: var(--text-color);
               }
               .note-btn {
-                opacity: 0.3;
+                opacity: 0.5;
                 transition: opacity 0.2s ease-in-out;
               }
               .group:hover .note-btn,
@@ -173,8 +181,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
             <div className="flex items-center space-x-1">
               <button
                 className={`note-btn bg-transparent p-1 rounded ${
-                  note.priority ? "text-yellow-400 active" : "text-gray-400"
-                } hover:text-yellow-500`}
+                  note.priority ? "text-gray-200 active" : "text-gray-400"
+                } hover:text-gray-100`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onTogglePriority(note.id);
@@ -184,8 +192,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
               </button>
               <button
                 className={`note-btn bg-transparent p-1 rounded ${
-                  note.pinned ? "text-blue-400 active" : "text-gray-400"
-                } hover:text-blue-500`}
+                  note.pinned ? "text-gray-200 active" : "text-gray-400"
+                } hover:text-gray-100`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onTogglePin(note.id);
@@ -198,6 +206,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
           <div className={`note-content ${isEditing ? "editing" : ""}`}>
             {isEditing ? (
               <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 value={editedContent}
                 onChange={setEditedContent}
@@ -215,13 +224,13 @@ const NoteItem: React.FC<NoteItemProps> = ({
             {isEditing ? (
               <div className="flex justify-end space-x-2">
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-green-500 hover:text-green-600"
+                  className="note-btn bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
                   onClick={handleSave}
                 >
                   <FaSave size={14} />
                 </button>
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-red-500 hover:text-red-600"
+                  className="note-btn bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
                   onClick={handleCancel}
                 >
                   <FaTimes size={14} />
@@ -230,7 +239,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
             ) : (
               <div className="flex justify-end space-x-2">
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-blue-500"
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit();
@@ -239,7 +248,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   <FaEdit size={14} />
                 </button>
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-blue-500"
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCopy();
@@ -248,7 +257,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   <FaCopy size={14} />
                 </button>
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-red-500"
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(note.id);

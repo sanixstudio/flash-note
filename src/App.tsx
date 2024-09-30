@@ -12,6 +12,7 @@ import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
 import { useToast } from "./hooks/use-toast";
 import { DeletedNote } from "./types";
+import ReactQuill from "react-quill";
 
 const App: React.FC = () => {
   const {
@@ -38,6 +39,7 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"notes" | "history">("notes");
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const quillRef = useRef<ReactQuill>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -64,6 +66,13 @@ const App: React.FC = () => {
       setTimeout(() => textareaRef.current?.focus(), 0);
     }
   };
+
+  useEffect(() => {
+    if (isAddingNote && quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      quill.focus();
+    }
+  }, [isAddingNote]);
 
   const handleSaveNote = useCallback(() => {
     if (noteInput.trim()) {
@@ -236,6 +245,7 @@ const App: React.FC = () => {
 
         {isAddingNote && (
           <NoteInput
+            ref={quillRef}
             noteInput={noteInput}
             setNoteInput={setNoteInput}
             onSaveNote={handleSaveNote}
@@ -292,7 +302,7 @@ const App: React.FC = () => {
             activeTab === "notes"
               ? "bg-gray-600 text-textColor"
               : "text-gray-400"
-          } hover:bg-buttonHover transition-colors`}
+          } hover:bg-gray-700 transition-colors`}
           onClick={() => setActiveTab("notes")}
         >
           <FaStickyNote className="mr-1" size={10} />
@@ -303,7 +313,7 @@ const App: React.FC = () => {
             activeTab === "history"
               ? "bg-gray-600 text-textColor"
               : "text-gray-400"
-          } hover:bg-buttonHover transition-colors`}
+          } hover:bg-gray-700 transition-colors`}
           onClick={() => setActiveTab("history")}
         >
           <FaHistory className="mr-1" size={10} />

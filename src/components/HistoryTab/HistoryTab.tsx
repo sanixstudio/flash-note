@@ -55,7 +55,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         <h2 className="text-lg font-semibold">Deleted Notes</h2>
         {deletedNotes.length > 0 && (
           <button
-            className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
+            className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-500 transition-colors"
             onClick={onClearHistory}
           >
             Clear All History
@@ -70,8 +70,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             <div
               key={note.id}
               className={`deleted-note bg-bgColor border border-borderColor rounded w-full mb-2 relative ${
-                note.priority ? "border-yellow-400 bg-yellow-400/10" : ""
-              } ${note.pinned ? "border-blue-400 bg-blue-400/10" : ""}`}
+                note.priority ? "border-gray-400 bg-gray-700/30" : ""
+              } ${note.pinned ? "border-gray-300 bg-gray-600/30" : ""}`}
             >
               <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t">
                 <span className="text-xs text-gray-400">
@@ -89,14 +89,14 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               </div>
               <div className="flex justify-end p-2 bg-gray-800 rounded-b">
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-green-500 hover:text-green-400 mr-2"
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100 mr-2"
                   onClick={() => onRestoreNote(note)}
                   title="Restore Note"
                 >
                   <FaUndo size={14} />
                 </button>
                 <button
-                  className="note-btn bg-transparent p-1 rounded text-red-500 hover:text-red-400"
+                  className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100"
                   onClick={() => onDeleteNote(note.id)}
                   title="Delete Permanently"
                 >
