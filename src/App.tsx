@@ -64,7 +64,7 @@ const App: React.FC = () => {
 
   const handleSaveNote = useCallback(() => {
     if (noteInput.trim()) {
-      addNote(noteInput);
+      addNote(noteInput); // noteInput is now HTML content
       setNoteInput("");
       setIsAddingNote(false);
     }

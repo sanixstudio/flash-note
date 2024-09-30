@@ -77,6 +77,21 @@ const NoteItem: React.FC<NoteItemProps> = ({
     setIsEditing(false);
   };
 
+  const quillModules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const quillFormats = [
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link'
+  ];
+
   return (
     <Draggable draggableId={note.id.toString()} index={index}>
       {(provided) => (
@@ -119,6 +134,21 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 border-bottom-left-radius: 0.25rem;
                 border-bottom-right-radius: 0.25rem;
               }
+              .ql-toolbar {
+                background-color: rgba(0, 0, 0, 0.3);
+                border: none;
+                border-top-left-radius: 0.25rem;
+                border-top-right-radius: 0.25rem;
+              }
+              .ql-toolbar .ql-stroke {
+                stroke: var(--text-color);
+              }
+              .ql-toolbar .ql-fill {
+                fill: var(--text-color);
+              }
+              .ql-toolbar .ql-picker {
+                color: var(--text-color);
+              }
             `}
           </style>
           <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t">
@@ -157,7 +187,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 theme="snow"
                 value={editedContent}
                 onChange={setEditedContent}
-                modules={{ toolbar: false }}
+                modules={quillModules}
+                formats={quillFormats}
               />
             ) : (
               <div
