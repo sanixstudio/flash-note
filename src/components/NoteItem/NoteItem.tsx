@@ -52,7 +52,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
     toast({
       title: "Copied",
       description: "Note content copied to clipboard",
-      duration: 500,
+      duration: 1000,
     });
   };
 
@@ -66,7 +66,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
       toast({
         title: "Note updated",
         description: "Your note has been successfully updated.",
-        duration: 2000,
+        duration: 1000,
       });
     }
     setIsEditing(false);

@@ -1,20 +1,27 @@
 import React from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaInfoCircle } from "react-icons/fa";
 
 interface HeaderProps {
   onSearchToggle: () => void;
+  onInfoClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearchToggle }) => {
+const Header: React.FC<HeaderProps> = ({ onSearchToggle, onInfoClick }) => {
   return (
-    <div className="header flex justify-between items-center mb-4">
-      <h1 className="text-2xl text-textColor font-bold">Flash Notes</h1>
-      <div className="header-actions flex items-center gap-4">
+    <div className="flex justify-between items-center mb-4">
+      <h1 className="text-xl font-bold">Flash Notes</h1>
+      <div className="flex items-center space-x-2">
         <button
-          className="search-toggle bg-transparent p-2"
           onClick={onSearchToggle}
+          className="p-1 bg-inputBg text-textColor border border-borderColor rounded hover:bg-buttonHover"
         >
-          <FaSearch className="text-textColor" />
+          <FaSearch size={14} />
+        </button>
+        <button
+          onClick={onInfoClick}
+          className="p-1 bg-inputBg text-textColor border border-borderColor rounded hover:bg-buttonHover"
+        >
+          <FaInfoCircle size={14} />
         </button>
       </div>
     </div>

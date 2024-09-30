@@ -1,6 +1,8 @@
-1. When clearing all notes, add a confirmation
+- Fix "Clear All" and "New Note" button positions
+- Fix weird spacing issue
+- Delete individual "Deleted" note
+- Add richtext formatting
 
 Version 2.0
-- Add authentication to save each user's notes
-- Add history for deleted notes, based on hour/day/week
--
+
+- Add authentication to save each user's notes Globally

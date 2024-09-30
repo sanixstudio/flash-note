@@ -5,6 +5,7 @@ import ActionBar from "./components/ActionBar/ActionBar";
 import NoteItem from "./components/NoteItem/NoteItem";
 import NoteInput from "./components/NoteInput/NoteInput";
 import HistoryTab from "./components/HistoryTab/HistoryTab";
+import AboutModal from "./components/AboutModal/AboutModal";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
 import { FaHistory, FaStickyNote } from "react-icons/fa";
@@ -33,6 +34,7 @@ const App: React.FC = () => {
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"notes" | "history">("notes");
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -163,6 +165,10 @@ const App: React.FC = () => {
     reorderNotes(result.source.index, result.destination.index);
   };
 
+  const handleInfoClick = () => {
+    setIsAboutModalOpen(true);
+  };
+
   return (
     <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor text-sm">
       <style>
@@ -181,7 +187,7 @@ const App: React.FC = () => {
       {error && <div className="text-red-500 p-1 text-xs">{error}</div>}
 
       <div className="p-2 flex-shrink-0">
-        <Header onSearchToggle={handleSearchToggle} />
+        <Header onSearchToggle={handleSearchToggle} onInfoClick={handleInfoClick} />
 
         {searchVisible && (
           <div ref={searchContainerRef} className="mb-2">
@@ -281,6 +287,8 @@ const App: React.FC = () => {
           History
         </button>
       </div>
+
+      <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
     </div>
   );
 };
