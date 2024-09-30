@@ -11,6 +11,7 @@ import { useNotes } from "./hooks/useNotes";
 import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
 import { useToast } from "./hooks/use-toast";
+import { DeletedNote } from "./types";
 
 const App: React.FC = () => {
   const {
@@ -27,6 +28,8 @@ const App: React.FC = () => {
     reorderNotes,
     editNote,
     toggleNotePin,
+    restoreNote,
+    deleteDeletedNote, // Add this new hook
   } = useNotes();
 
   const [noteInput, setNoteInput] = useState<string>("");
@@ -157,6 +160,24 @@ const App: React.FC = () => {
     [editNote]
   );
 
+  const handleRestoreNote = (note: DeletedNote) => {
+    restoreNote(note);
+    toast({
+      title: "Note restored",
+      description: "The note has been restored successfully.",
+      duration: 2000,
+    });
+  };
+
+  const handleDeleteDeletedNote = (id: number) => {
+    deleteDeletedNote(id);
+    toast({
+      title: "Note deleted permanently",
+      description: "The note has been removed from the history.",
+      duration: 2000,
+    });
+  };
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) {
       return;
@@ -260,6 +281,8 @@ const App: React.FC = () => {
         <HistoryTab
           deletedNotes={deletedNotes}
           onClearHistory={handleClearAllHistory}
+          onRestoreNote={handleRestoreNote}
+          onDeleteNote={handleDeleteDeletedNote}
         />
       )}
 

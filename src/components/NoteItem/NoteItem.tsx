@@ -103,7 +103,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
             note.completed ? "opacity-40 line-through" : ""
           } ${note.priority ? "border-yellow-400 bg-yellow-400/10" : ""} ${
             note.pinned ? "border-blue-400 bg-blue-400/10" : ""
-          } transition-transform hover:scale-[1.02] cursor-pointer`}
+          } transition-transform hover:scale-[1.02] cursor-pointer group`}
           onClick={isEditing ? undefined : handleNoteClick}
         >
           <style>
@@ -149,17 +149,31 @@ const NoteItem: React.FC<NoteItemProps> = ({
               .ql-toolbar .ql-picker {
                 color: var(--text-color);
               }
+              .note-btn {
+                opacity: 0.3;
+                transition: opacity 0.2s ease-in-out;
+              }
+              .group:hover .note-btn,
+              .note-btn:focus,
+              .note-btn.active,
+              .editing .note-btn {
+                opacity: 1;
+              }
             `}
           </style>
           <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t">
             <div className="text-xs text-gray-400 ml-1">
               <FaClock size={12} className="inline mr-1" />
-              <span>{formatDate(note.createdAt.toISOString())}</span>
+              <span>
+                {note.updatedAt && note.updatedAt > note.createdAt
+                  ? `Updated ${formatDate(note.updatedAt.toISOString())}`
+                  : formatDate(note.createdAt.toISOString())}
+              </span>
             </div>
             <div className="flex items-center space-x-1">
               <button
                 className={`note-btn bg-transparent p-1 rounded ${
-                  note.priority ? "text-yellow-400" : "text-gray-400"
+                  note.priority ? "text-yellow-400 active" : "text-gray-400"
                 } hover:text-yellow-500`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -170,7 +184,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
               </button>
               <button
                 className={`note-btn bg-transparent p-1 rounded ${
-                  note.pinned ? "text-blue-400" : "text-gray-400"
+                  note.pinned ? "text-blue-400 active" : "text-gray-400"
                 } hover:text-blue-500`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -197,7 +211,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
               />
             )}
           </div>
-          <div className="note-controls">
+          <div className={`note-controls ${isEditing ? "editing" : ""}`}>
             {isEditing ? (
               <div className="flex justify-end space-x-2">
                 <button

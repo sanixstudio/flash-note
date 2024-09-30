@@ -36,10 +36,12 @@ export const useNotes = () => {
           setError("Error loading notes: " + chrome.runtime.lastError.message);
           return;
         }
-        const savedNotes: Note[] = (result.notes || []).map((note: Omit<Note, 'createdAt'> & { createdAt: string }) => ({
-          ...note,
-          createdAt: new Date(note.createdAt)
-        }));
+        const savedNotes: Note[] = (result.notes || []).map(
+          (note: Omit<Note, "createdAt"> & { createdAt: string }) => ({
+            ...note,
+            createdAt: new Date(note.createdAt),
+          })
+        );
         setNotes(savedNotes);
         const incompleteCount = savedNotes.filter(
           (note) => !note.completed
@@ -49,9 +51,9 @@ export const useNotes = () => {
     } else {
       const savedNotes: Note[] = JSON.parse(
         localStorage.getItem("notes") || "[]"
-      ).map((note: Omit<Note, 'createdAt'> & { createdAt: string }) => ({
+      ).map((note: Omit<Note, "createdAt"> & { createdAt: string }) => ({
         ...note,
-        createdAt: new Date(note.createdAt)
+        createdAt: new Date(note.createdAt),
       }));
       setNotes(savedNotes);
       const incompleteCount = savedNotes.filter(
@@ -62,9 +64,9 @@ export const useNotes = () => {
   }, [setIncompleteNotesAndUpdateBadge]);
 
   const saveNotes = (updatedNotes: Note[]) => {
-    const notesToSave = updatedNotes.map(note => ({
+    const notesToSave = updatedNotes.map((note) => ({
       ...note,
-      createdAt: note.createdAt.toISOString()
+      createdAt: note.createdAt.toISOString(),
     }));
     if (isChromeApiAvailable()) {
       chrome.storage.local.set({ notes: notesToSave }, () => {
@@ -82,6 +84,7 @@ export const useNotes = () => {
       id: Date.now(),
       content: content.trim(),
       createdAt: new Date(),
+      updatedAt: new Date(),
       completed: false,
       priority: false,
       pinned: false,
@@ -163,25 +166,51 @@ export const useNotes = () => {
     return () => clearInterval(interval);
   }, [getNotes, clearOldDeletedNotes]);
 
-  const editNote = useCallback((id: number, newContent: string) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note.id === id ? { ...note, content: newContent } : note
-      )
-    );
-  }, []);
-
-  const changeNoteCategory = useCallback((id: number, category: string) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((note) => (note.id === id ? { ...note, category } : note))
-    );
-  }, []);
+  const editNote = useCallback(
+    (id: number, newContent: string) => {
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note.id === id
+            ? { ...note, content: newContent, updatedAt: new Date() }
+            : note
+        )
+      );
+      saveNotes(notes); // Make sure to save the updated notes
+    },
+    [notes, saveNotes]
+  );
 
   const toggleNotePin = useCallback((id: number) => {
     setNotes((prevNotes) =>
       prevNotes.map((note) =>
         note.id === id ? { ...note, pinned: !note.pinned } : note
       )
+    );
+  }, []);
+
+  const restoreNote = useCallback(
+    (noteToRestore: DeletedNote) => {
+      const restoredNote: Note = {
+        ...noteToRestore,
+        updatedAt: new Date(),
+      };
+      setNotes((prevNotes) => [restoredNote, ...prevNotes]);
+
+      setDeletedNotes((prevDeletedNotes) =>
+        prevDeletedNotes.filter((note) => note.id !== noteToRestore.id)
+      );
+
+      setIncompleteNotesAndUpdateBadge(
+        notes.filter((note) => !note.completed).length + 1
+      );
+      saveNotes([restoredNote, ...notes]);
+    },
+    [notes, setIncompleteNotesAndUpdateBadge, saveNotes]
+  );
+
+  const deleteDeletedNote = useCallback((id: number) => {
+    setDeletedNotes((prevDeletedNotes) =>
+      prevDeletedNotes.filter((note) => note.id !== id)
     );
   }, []);
 
@@ -198,7 +227,8 @@ export const useNotes = () => {
     clearAllHistory,
     reorderNotes,
     editNote,
-    changeNoteCategory,
     toggleNotePin,
+    restoreNote,
+    deleteDeletedNote,
   };
 };

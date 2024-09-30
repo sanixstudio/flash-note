@@ -38,6 +38,35 @@ const NoteInput: React.FC<NoteInputProps> = ({
 
   return (
     <div className="mb-2">
+      <style>
+        {`
+          .ql-editor {
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+          }
+          .ql-toolbar {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none !important;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+          }
+          .ql-container {
+            border: none !important;
+            border-bottom-left-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+          }
+          .ql-toolbar .ql-stroke {
+            stroke: var(--text-color);
+          }
+          .ql-toolbar .ql-fill {
+            fill: var(--text-color);
+          }
+          .ql-toolbar .ql-picker {
+            color: var(--text-color);
+          }
+        `}
+      </style>
       <ReactQuill
         theme="snow"
         value={noteInput}
@@ -46,17 +75,17 @@ const NoteInput: React.FC<NoteInputProps> = ({
         formats={quillFormats}
         onBlur={onBlur}
         placeholder="Enter your note..."
-        className="quill-editor"
+        className="bg-inputBg text-textColor rounded"
       />
       <div className="flex justify-end mt-2 space-x-2">
         <button
-          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          className="px-3 py-1 bg-green-500 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
           onClick={onSaveNote}
         >
           Save
         </button>
         <button
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          className="px-3 py-1 bg-red-500 text-white rounded opacity-50 hover:opacity-100 transition-opacity duration-200"
           onClick={onCancel}
         >
           Cancel
