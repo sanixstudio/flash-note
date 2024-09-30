@@ -8,6 +8,7 @@ import {
   FaSave,
   FaTimes,
   FaThumbtack,
+  FaClock,
 } from "react-icons/fa";
 import { Note } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
@@ -83,7 +84,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`note p-2 bg-inputBg border border-borderColor rounded w-full mb-2 relative ${
+          className={`note bg-inputBg border border-borderColor rounded w-full mb-2 relative ${
             note.completed ? "opacity-40 line-through" : ""
           } ${note.priority ? "border-yellow-400 bg-yellow-400/10" : ""} ${
             note.pinned ? "border-blue-400 bg-blue-400/10" : ""
@@ -94,38 +95,57 @@ const NoteItem: React.FC<NoteItemProps> = ({
             {`
               .ql-editor {
                 color: var(--text-color);
-                padding: 0;
+                padding: 0.5rem;
+                background-color: rgba(0, 0, 0, 0.2);
+                border-top-left-radius: 0.25rem;
+                border-top-right-radius: 0.25rem;
+                min-height: fit-content;
               }
               .ql-editor p {
                 margin-bottom: 0;
               }
               .note-content .ql-editor {
-                background-color: transparent;
+                background-color: rgba(0, 0, 0, 0.2);
               }
               .note-content .ql-container {
                 border: none;
               }
               .editing .ql-editor {
-                background-color: var(--input-bg);
+                background-color: rgba(0, 0, 0, 0.3);
+              }
+              .note-controls {
+                background-color: rgba(0, 0, 0, 0.1);
+                padding: 0.5rem;
+                border-bottom-left-radius: 0.25rem;
+                border-bottom-right-radius: 0.25rem;
               }
             `}
           </style>
-          <button
-            className={`note-btn absolute top-1 right-1 bg-transparent p-1 rounded ${
-              note.pinned ? "text-blue-400" : "text-gray-400"
-            } hover:text-blue-500`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onTogglePin(note.id);
-            }}
-          >
-            <FaThumbtack size={14} />
-          </button>
-          <div
-            className={`flex items-start justify-between mb-2 ${
-              isEditing ? "editing" : "note-content"
-            }`}
-          >
+          <div className="absolute top-1 right-1 flex items-center space-x-1 z-10">
+            <button
+              className={`note-btn bg-transparent p-1 rounded ${
+                note.priority ? "text-yellow-400" : "text-gray-400"
+              } hover:text-yellow-500`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePriority(note.id);
+              }}
+            >
+              <FaStar size={14} />
+            </button>
+            <button
+              className={`note-btn bg-transparent p-1 rounded ${
+                note.pinned ? "text-blue-400" : "text-gray-400"
+              } hover:text-blue-500`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin(note.id);
+              }}
+            >
+              <FaThumbtack size={14} />
+            </button>
+          </div>
+          <div className={`note-content ${isEditing ? "editing" : ""}`}>
             <span className="flex-grow pr-2 break-words">
               {isEditing ? (
                 <ReactQuill
@@ -142,39 +162,29 @@ const NoteItem: React.FC<NoteItemProps> = ({
               )}
             </span>
           </div>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>{formatDate(note.createdAt.toISOString())}</span>
-            </div>
-            <div className="flex justify-end space-x-1">
-              {isEditing ? (
-                <>
-                  <button
-                    className="note-btn bg-transparent p-1 rounded text-green-500 hover:text-green-600"
-                    onClick={handleSave}
-                  >
-                    <FaSave size={14} />
-                  </button>
-                  <button
-                    className="note-btn bg-transparent p-1 rounded text-red-500 hover:text-red-600"
-                    onClick={handleCancel}
-                  >
-                    <FaTimes size={14} />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className={`note-btn bg-transparent p-1 rounded ${
-                      note.priority ? "text-yellow-400" : "text-gray-400"
-                    } hover:text-yellow-500`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTogglePriority(note.id);
-                    }}
-                  >
-                    <FaStar size={14} />
-                  </button>
+          <div className="note-controls">
+            {isEditing ? (
+              <div className="flex justify-end space-x-2">
+                <button
+                  className="note-btn bg-transparent p-1 rounded text-green-500 hover:text-green-600"
+                  onClick={handleSave}
+                >
+                  <FaSave size={14} />
+                </button>
+                <button
+                  className="note-btn bg-transparent p-1 rounded text-red-500 hover:text-red-600"
+                  onClick={handleCancel}
+                >
+                  <FaTimes size={14} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-xs text-gray-400">
+                  <FaClock size={12} className="mr-1" />
+                  <span>{formatDate(note.createdAt.toISOString())}</span>
+                </div>
+                <div className="flex space-x-2">
                   <button
                     className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-blue-500"
                     onClick={(e) => {
@@ -202,9 +212,9 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   >
                     <FaTrash size={14} />
                   </button>
-                </>
-              )}
-            </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
