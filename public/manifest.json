@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Flash Notes",
-  "description": "A simple and efficient note-taking Chrome extension for quick thoughts and tasks.",
-  "version": "1.2",
+  "name": "Flash Notes - Quick & Efficient Note-Taking",
+  "short_name": "Flash Notes",
+  "description": "Streamline your thoughts with Flash Notes, a powerful Chrome extension for quick note-taking, task management, and idea capturing. Features rich text formatting, pinning, priority marking, and more!",
+  "version": "1.2.0",
+  "author": "Sanixstudio",
   "permissions": ["storage"],
   "action": {
     "default_popup": "index.html",
@@ -17,9 +19,17 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "author": "Adnan Niaz",
   "offline_enabled": true,
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "keywords": [
+    "note-taking",
+    "productivity",
+    "task management",
+    "ideas",
+    "quick notes",
+    "rich text",
+    "dark mode"
+  ]
 }
