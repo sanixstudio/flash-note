@@ -36,8 +36,14 @@ export const useNotes = () => {
     (updatedNotes: Note[]) => {
       const notesToSave = updatedNotes.map((note) => ({
         ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
+        createdAt:
+          note.createdAt instanceof Date
+            ? note.createdAt.toISOString()
+            : note.createdAt,
+        updatedAt:
+          note.updatedAt instanceof Date
+            ? note.updatedAt.toISOString()
+            : note.updatedAt,
       }));
       if (isChromeApiAvailable()) {
         chrome.storage.local.set({ notes: notesToSave }, () => {
@@ -60,9 +66,15 @@ export const useNotes = () => {
           return;
         }
         const savedNotes: Note[] = (result.notes || []).map(
-          (note: Omit<Note, "createdAt"> & { createdAt: string }) => ({
+          (
+            note: Omit<Note, "createdAt" | "updatedAt"> & {
+              createdAt: string;
+              updatedAt: string;
+            }
+          ) => ({
             ...note,
             createdAt: new Date(note.createdAt),
+            updatedAt: new Date(note.updatedAt),
           })
         );
         setNotes(savedNotes);
@@ -74,18 +86,26 @@ export const useNotes = () => {
     } else {
       const savedNotes: Note[] = JSON.parse(
         localStorage.getItem("notes") || "[]"
-      ).map((note: Omit<Note, "createdAt"> & { createdAt: string }) => ({
-        ...note,
-        createdAt: new Date(note.createdAt),
-      }));
+      ).map(
+        (
+          note: Omit<Note, "createdAt" | "updatedAt"> & {
+            createdAt: string;
+            updatedAt: string;
+          }
+        ) => ({
+          ...note,
+          createdAt: new Date(note.createdAt),
+          updatedAt: new Date(note.updatedAt),
+        })
+      );
       setNotes(savedNotes);
       const incompleteCount = savedNotes.filter(
         (note) => !note.completed
       ).length;
       setIncompleteNotesAndUpdateBadge(incompleteCount);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setIncompleteNotesAndUpdateBadge]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setIncompleteNotesAndUpdateBadge, isChromeApiAvailable, setError]);
 
   const addNote = (content: string) => {
     const newNote: Note = {
@@ -123,24 +143,47 @@ export const useNotes = () => {
     }
   };
 
-  const toggleNoteCompletion = (id: number) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === id ? { ...note, completed: !note.completed } : note
-    );
-    setNotes(updatedNotes);
-    setIncompleteNotesAndUpdateBadge(
-      updatedNotes.filter((note) => !note.completed).length
-    );
-    saveNotes(updatedNotes);
-  };
+  const toggleNoteCompletion = useCallback(
+    (id: number) => {
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
+          note.id === id ? { ...note, completed: !note.completed } : note
+        );
+        setIncompleteNotesAndUpdateBadge(
+          updatedNotes.filter((note) => !note.completed).length
+        );
+        saveNotes(updatedNotes);
+        return updatedNotes;
+      });
+    },
+    [setIncompleteNotesAndUpdateBadge, saveNotes]
+  );
 
-  const toggleNotePriority = (id: number) => {
-    const updatedNotes = notes.map((note) =>
-      note.id === id ? { ...note, priority: !note.priority } : note
-    );
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-  };
+  const toggleNotePriority = useCallback(
+    (id: number) => {
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
+          note.id === id ? { ...note, priority: !note.priority } : note
+        );
+        saveNotes(updatedNotes);
+        return updatedNotes;
+      });
+    },
+    [saveNotes]
+  );
+
+  const toggleNotePin = useCallback(
+    (id: number) => {
+      setNotes((prevNotes) => {
+        const updatedNotes = prevNotes.map((note) =>
+          note.id === id ? { ...note, pinned: !note.pinned } : note
+        );
+        saveNotes(updatedNotes);
+        return updatedNotes;
+      });
+    },
+    [saveNotes]
+  );
 
   const clearAllNotes = () => {
     setNotes([]);
@@ -188,14 +231,6 @@ export const useNotes = () => {
     },
     [saveNotes]
   );
-
-  const toggleNotePin = useCallback((id: number) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note.id === id ? { ...note, pinned: !note.pinned } : note
-      )
-    );
-  }, []);
 
   const restoreNote = useCallback(
     (noteToRestore: DeletedNote) => {

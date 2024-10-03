@@ -200,7 +200,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] w-[350px] bg-bgColor text-textColor text-sm">
+    <div className="flex flex-col h-[600px] w-[350px] bg-slate-900 text-textColor text-sm">
       <style>
         {`
           :root {

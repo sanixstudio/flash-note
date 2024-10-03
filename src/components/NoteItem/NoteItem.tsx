@@ -107,11 +107,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`note bg-bgColor border border-borderColor rounded w-full mb-2 relative ${
-            note.completed ? "opacity-40" : ""
-          } ${note.priority ? "border-gray-400 bg-gray-700/30" : ""} ${
-            note.pinned ? "border-gray-300 bg-gray-600/30" : ""
-          } transition-transform hover:scale-[1.02] cursor-pointer group`}
+          className={`note bg-bgColor border rounded w-full mb-2 relative
+            ${note.priority ? "border-yellow-400 bg-yellow-400/20" : "border-borderColor"}
+            ${note.pinned ? "border-gray-300/50 bg-gray-300/20" : ""}
+            ${note.completed ? "opacity-30" : ""}
+            transition-transform hover:scale-[1.02] cursor-pointer group`}
           onClick={isEditing ? undefined : handleNoteClick}
         >
           <style>
@@ -130,17 +130,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
               .note-content .ql-editor {
                 background-color: rgba(0, 0, 0, 0.2);
               }
+              .note-content.completed .ql-editor {
+                text-decoration: line-through;
+              }
               .note-content .ql-container {
                 border: none;
               }
               .editing .ql-editor {
                 background-color: rgba(0, 0, 0, 0.3);
-              }
-              .note-controls {
-                background-color: rgba(0, 0, 0, 0.1);
-                padding: 0.5rem;
-                border-bottom-left-radius: 0.25rem;
-                border-bottom-right-radius: 0.25rem;
               }
               .ql-toolbar {
                 background-color: rgba(0, 0, 0, 0.3);
@@ -167,6 +164,9 @@ const NoteItem: React.FC<NoteItemProps> = ({
               .editing .note-btn {
                 opacity: 1;
               }
+              .note-btn.priority-active {
+                color: #fbbf24; /* Tailwind's yellow-400 */
+              }
             `}
           </style>
           <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t">
@@ -181,8 +181,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
             <div className="flex items-center space-x-1">
               <button
                 className={`note-btn bg-transparent p-1 rounded ${
-                  note.priority ? "text-gray-200 active" : "text-gray-400"
-                } hover:text-gray-100`}
+                  note.priority ? "priority-active" : "text-gray-400"
+                } hover:text-yellow-400`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onTogglePriority(note.id);
@@ -203,7 +203,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
               </button>
             </div>
           </div>
-          <div className={`note-content ${isEditing ? "editing" : ""}`}>
+          <div className={`note-content ${isEditing ? "editing" : ""} ${note.completed ? "completed" : ""}`}>
             {isEditing ? (
               <ReactQuill
                 ref={quillRef}
