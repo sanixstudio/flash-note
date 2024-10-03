@@ -90,11 +90,8 @@ const App: React.FC = () => {
   }, [searchTerm]);
 
   const handleNoteInputBlur = useCallback(() => {
-    if (!noteInput.trim()) {
-      setIsAddingNote(false);
-      setNoteInput("");
-    }
-  }, [noteInput]);
+    // Do nothing, as we're handling this in the NoteInput component
+  }, []);
 
   const handleSearchToggle = useCallback(() => {
     setSearchVisible((prev) => !prev);
