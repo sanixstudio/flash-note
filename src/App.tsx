@@ -13,6 +13,7 @@ import "./App.css";
 import { useToast } from "./hooks/use-toast";
 import { DeletedNote } from "./types";
 import ReactQuill from "react-quill";
+import { stripHtml } from "./utils/textUtils";
 
 const App: React.FC = () => {
   const {
@@ -138,7 +139,8 @@ const App: React.FC = () => {
 
   const handleCopyNote = useCallback(
     (content: string) => {
-      navigator.clipboard.writeText(content).then(
+      const plainText = stripHtml(content);
+      navigator.clipboard.writeText(plainText).then(
         () => {
           toast({
             title: "Note copied",
@@ -214,7 +216,10 @@ const App: React.FC = () => {
       {error && <div className="text-red-500 p-1 text-xs">{error}</div>}
 
       <div className="p-2 flex-shrink-0">
-        <Header onSearchToggle={handleSearchToggle} onInfoClick={handleInfoClick} />
+        <Header
+          onSearchToggle={handleSearchToggle}
+          onInfoClick={handleInfoClick}
+        />
 
         {searchVisible && (
           <div ref={searchContainerRef} className="mb-2">
@@ -318,7 +323,10 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+      <AboutModal
+        isOpen={isAboutModalOpen}
+        onClose={() => setIsAboutModalOpen(false)}
+      />
     </div>
   );
 };
