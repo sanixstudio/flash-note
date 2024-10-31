@@ -22,14 +22,5 @@
   "offline_enabled": true,
   "background": {
     "service_worker": "background.js"
-  },
-  "keywords": [
-    "note-taking",
-    "productivity",
-    "task management",
-    "ideas",
-    "quick notes",
-    "rich text",
-    "dark mode"
-  ]
+  }
 }

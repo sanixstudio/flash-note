@@ -15,7 +15,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
   return (
     <div className="stats-container flex justify-between items-center">
       <div className="note-stats">
-        <span id="incompleteNotes" className="text-yellow-400">
+        <span id="incompleteNotes" className="text-red-400">
           Incomplete: {incompleteNotes}
         </span>
       </div>

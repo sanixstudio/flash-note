@@ -9,6 +9,8 @@ import {
   FaTimes,
   FaThumbtack,
   FaClock,
+  FaRegCheckSquare,
+  FaRegSquare,
 } from "react-icons/fa";
 import { Note } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
@@ -49,11 +51,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
     }
   }, [isEditing]);
 
-  const handleNoteClick = (event: React.MouseEvent) => {
-    if (!(event.target as HTMLElement).closest(".note-btn")) {
-      onToggleCompletion(note.id);
-    }
-  };
+  // const handleNoteClick = (event: React.MouseEvent) => {
+  //   if (!(event.target as HTMLElement).closest(".note-btn")) {
+  //     onToggleCompletion(note.id);
+  //   }
+  // };
 
   const handleCopy = () => {
     onCopy(note.content);
@@ -87,17 +89,21 @@ const NoteItem: React.FC<NoteItemProps> = ({
 
   const quillModules = {
     toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link'],
-      ['clean']
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link"],
+      ["clean"],
     ],
   };
 
   const quillFormats = [
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'link'
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "link",
   ];
 
   return (
@@ -108,11 +114,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`note bg-bgColor border rounded w-full mb-2 relative
-            ${note.priority ? "border-yellow-400 bg-yellow-400/20" : "border-borderColor"}
+            ${
+              note.priority
+                ? "border-yellow-400 bg-yellow-400/20"
+                : "border-borderColor"
+            }
             ${note.pinned ? "border-gray-300/50 bg-gray-300/20" : ""}
-            ${note.completed ? "opacity-30" : ""}
-            transition-transform hover:scale-[1.02] cursor-pointer group`}
-          onClick={isEditing ? undefined : handleNoteClick}
+            ${note.completed ? "opacity-50" : ""}
+            transition-transform hover: group`}
         >
           <style>
             {`
@@ -169,6 +178,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
               }
             `}
           </style>
+
           <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t">
             <div className="text-xs text-gray-400 ml-1">
               <FaClock size={12} className="inline mr-1" />
@@ -203,7 +213,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
               </button>
             </div>
           </div>
-          <div className={`note-content ${isEditing ? "editing" : ""} ${note.completed ? "completed" : ""}`}>
+          <div
+            className={`note-content ${isEditing ? "editing" : ""} ${
+              note.completed ? "completed" : ""
+            }`}
+          >
             {isEditing ? (
               <ReactQuill
                 ref={quillRef}
@@ -238,6 +252,27 @@ const NoteItem: React.FC<NoteItemProps> = ({
               </div>
             ) : (
               <div className="flex justify-end space-x-2">
+                <div className="flex items-center pl-2 rounded w-full">
+                  <button
+                    className="flex items-center gap-2 text-gray-400 hover:text-gray-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleCompletion(note.id);
+                    }}
+                    title={
+                      note.completed ? "Mark as incomplete" : "Mark as complete"
+                    }
+                  >
+                    {note.completed ? (
+                      <FaRegCheckSquare size={16} />
+                    ) : (
+                      <FaRegSquare size={16} />
+                    )}
+                    <span className="text-sm text-emerald-500/70 hover:text-emerald-400">
+                      {note.completed ? "Done" : "Mark as Done"}
+                    </span>
+                  </button>
+                </div>
                 <button
                   className="note-btn bg-transparent p-1 rounded text-gray-400 hover:text-gray-100"
                   onClick={(e) => {
