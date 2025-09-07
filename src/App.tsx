@@ -12,7 +12,6 @@ import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
 import { useToast } from "./hooks/use-toast";
 import { DeletedNote } from "./types";
-import ReactQuill from "react-quill";
 import { stripHtml } from "./utils/textUtils";
 
 const App: React.FC = () => {
@@ -40,7 +39,7 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"notes" | "history">("notes");
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
-  const quillRef = useRef<ReactQuill>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -69,9 +68,12 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isAddingNote && quillRef.current) {
-      const quill = quillRef.current.getEditor();
-      quill.focus();
+    if (isAddingNote && editorRef.current) {
+      // Focus the editor when adding a note
+      const textArea = editorRef.current.querySelector('textarea');
+      if (textArea) {
+        textArea.focus();
+      }
     }
   }, [isAddingNote]);
 
@@ -247,7 +249,7 @@ const App: React.FC = () => {
 
         {isAddingNote && (
           <NoteInput
-            ref={quillRef}
+            ref={editorRef}
             noteInput={noteInput}
             setNoteInput={setNoteInput}
             onSaveNote={handleSaveNote}

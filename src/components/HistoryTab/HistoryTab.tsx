@@ -2,8 +2,6 @@ import React from "react";
 import { DeletedNote } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { FaClock, FaUndo, FaTrash } from "react-icons/fa";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 interface HistoryTabProps {
   deletedNotes: DeletedNote[];
@@ -80,11 +78,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
                 </span>
               </div>
               <div className="p-2">
-                <ReactQuill
-                  value={note.content}
-                  readOnly={true}
-                  theme="bubble"
-                  modules={{ toolbar: false }}
+                <div
+                  className="text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
                 />
               </div>
               <div className="flex justify-end p-2 bg-gray-800 rounded-b">

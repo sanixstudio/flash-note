@@ -15,8 +15,7 @@ import {
 import { Note } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import MDEditor from "@uiw/react-md-editor";
 
 interface NoteItemProps {
   note: Note;
@@ -42,12 +41,15 @@ const NoteItem: React.FC<NoteItemProps> = ({
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note.content);
-  const quillRef = useRef<ReactQuill>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isEditing && quillRef.current) {
-      const quill = quillRef.current.getEditor();
-      quill.focus();
+    if (isEditing && editorRef.current) {
+      // Focus the editor when editing starts
+      const textArea = editorRef.current.querySelector('textarea');
+      if (textArea) {
+        textArea.focus();
+      }
     }
   }, [isEditing]);
 
@@ -81,24 +83,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
     setIsEditing(false);
   };
 
-  const quillModules = {
-    toolbar: [
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link"],
-      ["clean"],
-    ],
+  // MDEditor configuration for inline editing - only valid props
+  const editorConfig = {
+    preview: "edit" as const,
+    hideToolbar: false,
   };
-
-  const quillFormats = [
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "link",
-  ];
 
   return (
     <Draggable draggableId={note.id.toString()} index={index}>
@@ -151,17 +140,17 @@ const NoteItem: React.FC<NoteItemProps> = ({
           </div>
           <div className={`p-2 bg-black/20 ${isEditing ? "bg-black/30" : ""}`}>
             {isEditing ? (
-              <ReactQuill
-                ref={quillRef}
-                theme="snow"
-                value={editedContent}
-                onChange={setEditedContent}
-                modules={quillModules}
-                formats={quillFormats}
-              />
+              <div ref={editorRef}>
+                <MDEditor
+                  value={editedContent}
+                  onChange={(val) => setEditedContent(val || "")}
+                  data-color-mode="dark"
+                  {...editorConfig}
+                />
+              </div>
             ) : (
               <div
-                className={`ql-editor text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit ${
+                className={`text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit ${
                   note.completed ? "line-through" : ""
                 }`}
                 dangerouslySetInnerHTML={{ __html: note.content }}

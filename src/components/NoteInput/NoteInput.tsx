@@ -1,6 +1,5 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import MDEditor from "@uiw/react-md-editor";
 
 interface NoteInputProps {
   noteInput: string;
@@ -10,7 +9,7 @@ interface NoteInputProps {
   onBlur: () => void;
 }
 
-const NoteInput = forwardRef<ReactQuill, NoteInputProps>(
+const NoteInput = forwardRef<HTMLDivElement, NoteInputProps>(
   ({ noteInput, setNoteInput, onSaveNote, onCancel, onBlur }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,70 +29,58 @@ const NoteInput = forwardRef<ReactQuill, NoteInputProps>(
       };
     }, [onCancel]);
 
-    const quillModules = {
-      toolbar: [
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-        ["clean"],
-      ],
+    // MDEditor configuration - only valid props
+    const editorConfig = {
+      preview: "edit" as const,
+      hideToolbar: false,
     };
-
-    const quillFormats = [
-      "bold",
-      "italic",
-      "underline",
-      "strike",
-      "list",
-      "bullet",
-      "link",
-    ];
 
     return (
       <div ref={containerRef} className="mb-2">
         <style>
           {`
-          .ql-editor {
+          .w-md-editor {
+            background-color: var(--inputBg) !important;
+            border-radius: 0.25rem;
+          }
+          .w-md-editor-text-container {
+            background-color: var(--inputBg) !important;
+            color: var(--text-color) !important;
+          }
+          .w-md-editor-text {
+            background-color: var(--inputBg) !important;
+            color: var(--text-color) !important;
             min-height: 150px;
             max-height: 300px;
             overflow-y: auto;
           }
-          .ql-toolbar {
-            background-color: rgba(0, 0, 0, 0.2);
+          .w-md-editor-text-input {
+            background-color: var(--inputBg) !important;
+            color: var(--text-color) !important;
+          }
+          .w-md-editor-toolbar {
+            background-color: rgba(0, 0, 0, 0.2) !important;
             border: none !important;
             border-top-left-radius: 0.25rem;
             border-top-right-radius: 0.25rem;
           }
-          .ql-container {
-            border: none !important;
-            border-bottom-left-radius: 0.25rem;
-            border-bottom-right-radius: 0.25rem;
+          .w-md-editor-toolbar button {
+            color: var(--text-color) !important;
           }
-          .ql-toolbar .ql-stroke {
-            stroke: var(--text-color);
-          }
-          .ql-toolbar .ql-fill {
-            fill: var(--text-color);
-          }
-          .ql-toolbar .ql-picker {
-            color: var(--text-color);
-          }
-          .ql-editor.ql-blank::before {
-            color: rgba(255, 255, 255, 0.5);
+          .w-md-editor-toolbar button:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
           }
         `}
         </style>
-        <ReactQuill
-          ref={ref}
-          theme="snow"
-          value={noteInput}
-          onChange={setNoteInput}
-          modules={quillModules}
-          formats={quillFormats}
-          onBlur={onBlur}
-          placeholder="Enter your note..."
-          className="bg-inputBg text-textColor rounded"
-        />
+        <div ref={ref}>
+          <MDEditor
+            value={noteInput}
+            onChange={(val) => setNoteInput(val || "")}
+            onBlur={onBlur}
+            data-color-mode="dark"
+            {...editorConfig}
+          />
+        </div>
         <div className="flex justify-end mt-2 space-x-2">
           <button
             className="px-3 py-1 bg-gray-600 text-white rounded opacity-100 hover:bg-gray-500 transition-colors duration-200"
