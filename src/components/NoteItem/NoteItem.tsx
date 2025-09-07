@@ -5,8 +5,6 @@ import {
   FaStar,
   FaCopy,
   FaEdit,
-  FaSave,
-  FaTimes,
   FaThumbtack,
   FaClock,
   FaRegCheckSquare,
@@ -91,21 +89,26 @@ const NoteItem: React.FC<NoteItemProps> = ({
 
   return (
     <Draggable draggableId={note.id.toString()} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={`bg-bgColor border rounded w-full mb-2 relative transition-transform hover:group ${
+          className={`bg-bgColor border rounded w-full mb-2 relative transition-all duration-200 hover:group ${
             note.priority
               ? "border-yellow-400 bg-yellow-400/20"
               : note.completed
               ? "border-emerald-500/50 bg-emerald-500/10 opacity-30"
               : "border-borderColor"
-          } ${note.pinned ? "border-gray-300/50 bg-gray-300/20" : ""}`}
+          } ${note.pinned ? "border-gray-300/50 bg-gray-300/20" : ""} ${
+            snapshot.isDragging ? "shadow-lg transform rotate-1" : ""
+          }`}
         >
-          <div className="flex justify-between items-center bg-gray-800 p-1 rounded-t-sm">
-            <div className="text-xs text-gray-400 ml-1">
+          <div 
+            {...provided.dragHandleProps}
+            className="flex justify-between items-center bg-gray-800 p-1 rounded-t-sm cursor-grab hover:bg-gray-700 transition-colors"
+            title="Click and hold to drag"
+          >
+            <div className="text-xs text-gray-400">
               <FaClock size={12} className="inline mr-1" />
               <span>
                 {note.updatedAt && note.updatedAt > note.createdAt
@@ -122,6 +125,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   e.stopPropagation();
                   onTogglePriority(note.id);
                 }}
+                onMouseDown={(e) => e.stopPropagation()}
               >
                 <FaStar size={14} />
               </button>
@@ -133,6 +137,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   e.stopPropagation();
                   onTogglePin(note.id);
                 }}
+                onMouseDown={(e) => e.stopPropagation()}
               >
                 <FaThumbtack size={14} />
               </button>
@@ -165,18 +170,20 @@ const NoteItem: React.FC<NoteItemProps> = ({
             }`}
           >
             {isEditing ? (
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 w-full">
                 <button
                   className="bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
                   onClick={handleSave}
                 >
-                  <FaSave size={14} />
+                  {/* <FaSave size={14} /> */}
+                  Save
                 </button>
                 <button
                   className="bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
                   onClick={handleCancel}
                 >
-                  <FaTimes size={14} />
+                  {/* <FaTimes size={14} /> */}
+                  Cancel
                 </button>
               </div>
             ) : (

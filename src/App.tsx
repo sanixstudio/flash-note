@@ -193,7 +193,10 @@ const App: React.FC = () => {
       return;
     }
 
-    reorderNotes(result.source.index, result.destination.index);
+    // Only reorder if the position actually changed
+    if (result.source.index !== result.destination.index) {
+      reorderNotes(result.source.index, result.destination.index);
+    }
   };
 
   const handleInfoClick = () => {
@@ -212,6 +215,14 @@ const App: React.FC = () => {
             --button-bg: #3a3a3a;
             --button-hover: #4a4a4a;
             --note-hover: #2a2a2a;
+          }
+          
+          .cursor-grab {
+            cursor: grab;
+          }
+          
+          .cursor-grab:active {
+            cursor: grabbing;
           }
         `}
       </style>
@@ -262,43 +273,47 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {activeTab === "notes" ? (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <ScrollArea className="flex-grow px-2 pb-2">
-            <Droppable droppableId="notes">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="space-y-4"
-                >
-                  {filteredNotes.map((note, index) => (
-                    <NoteItem
-                      key={note.id}
-                      note={note}
-                      index={index}
-                      onToggleCompletion={toggleNoteCompletion}
-                      onTogglePriority={toggleNotePriority}
-                      onDelete={deleteNote}
-                      onCopy={handleCopyNote}
-                      onEdit={handleEditNote}
-                      onTogglePin={toggleNotePin}
-                    />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </ScrollArea>
-        </DragDropContext>
-      ) : (
-        <HistoryTab
-          deletedNotes={deletedNotes}
-          onClearHistory={handleClearAllHistory}
-          onRestoreNote={handleRestoreNote}
-          onDeleteNote={handleDeleteDeletedNote}
-        />
-      )}
+      <div className="flex-grow">
+        {activeTab === "notes" ? (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <ScrollArea className="flex-grow px-2 pb-2">
+              <Droppable droppableId="notes" key="notes-droppable">
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`space-y-4 min-h-[200px] ${
+                      snapshot.isDraggingOver ? "bg-blue-500/5" : ""
+                    }`}
+                  >
+                    {filteredNotes.map((note, index) => (
+                      <NoteItem
+                        key={note.id}
+                        note={note}
+                        index={index}
+                        onToggleCompletion={toggleNoteCompletion}
+                        onTogglePriority={toggleNotePriority}
+                        onDelete={deleteNote}
+                        onCopy={handleCopyNote}
+                        onEdit={handleEditNote}
+                        onTogglePin={toggleNotePin}
+                      />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </ScrollArea>
+          </DragDropContext>
+        ) : (
+          <HistoryTab
+            deletedNotes={deletedNotes}
+            onClearHistory={handleClearAllHistory}
+            onRestoreNote={handleRestoreNote}
+            onDeleteNote={handleDeleteDeletedNote}
+          />
+        )}
+      </div>
 
       <div className="flex justify-center items-center py-1 border-t border-borderColor">
         <button
