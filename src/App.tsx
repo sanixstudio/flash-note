@@ -2,12 +2,13 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import Header from "./components/Header/Header";
 import ActionBar from "./components/ActionBar/ActionBar";
+import CaptureInput from "./components/CaptureInput/CaptureInput";
 import NoteItem from "./components/NoteItem/NoteItem";
-import NoteInput from "./components/NoteInput/NoteInput";
 import HistoryTab from "./components/HistoryTab/HistoryTab";
 import AboutModal from "./components/AboutModal/AboutModal";
 import { ScrollArea } from "./components/ui/scroll-area";
 import { useNotes } from "./hooks/useNotes";
+import { useCaptureFocus } from "./hooks/useCaptureFocus";
 import { FaHistory, FaStickyNote } from "react-icons/fa";
 import "./App.css";
 import { useToast } from "./hooks/use-toast";
@@ -33,17 +34,16 @@ const App: React.FC = () => {
     deleteDeletedNote,
   } = useNotes();
 
-  const [noteInput, setNoteInput] = useState<string>("");
-  const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"notes" | "history">("notes");
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
-  const editorRef = useRef<HTMLDivElement>(null);
 
+  const captureInputRef = useRef<HTMLTextAreaElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useCaptureFocus(captureInputRef);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -60,30 +60,12 @@ const App: React.FC = () => {
       return 0;
     });
 
-  const toggleNoteInput = () => {
-    setIsAddingNote((prev) => !prev);
-    if (!isAddingNote && textareaRef.current) {
-      setTimeout(() => textareaRef.current?.focus(), 0);
-    }
-  };
-
-  useEffect(() => {
-    if (isAddingNote && editorRef.current) {
-      // Focus the editor when adding a note
-      const textArea = editorRef.current.querySelector('textarea');
-      if (textArea) {
-        textArea.focus();
-      }
-    }
-  }, [isAddingNote]);
-
-  const handleSaveNote = useCallback(() => {
-    if (noteInput.trim()) {
-      addNote(noteInput); // noteInput is now HTML content
-      setNoteInput("");
-      setIsAddingNote(false);
-    }
-  }, [noteInput, addNote]);
+  const handleCapture = useCallback(
+    (content: string) => {
+      if (content.trim()) addNote(content.trim());
+    },
+    [addNote]
+  );
 
   const handleSearchBlur = useCallback(() => {
     if (!searchTerm.trim()) {
@@ -91,10 +73,6 @@ const App: React.FC = () => {
       setSearchTerm("");
     }
   }, [searchTerm]);
-
-  const handleNoteInputBlur = useCallback(() => {
-    // Do nothing, as we're handling this in the NoteInput component
-  }, []);
 
   const handleSearchToggle = useCallback(() => {
     setSearchVisible((prev) => !prev);
@@ -125,8 +103,7 @@ const App: React.FC = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.altKey && event.shiftKey && event.key === "N") {
         event.preventDefault();
-        setIsAddingNote(true);
-        setTimeout(() => textareaRef.current?.focus(), 0);
+        captureInputRef.current?.focus();
       }
     };
 
@@ -244,29 +221,19 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center flex-grow">
-            <ActionBar
-              incompleteNotes={incompleteNotes}
-              onClearAll={handleClearAll}
-              onToggleNoteInput={toggleNoteInput}
-            />
-          </div>
+        <div className="mb-2">
+          <CaptureInput
+            onCapture={handleCapture}
+            inputRef={captureInputRef}
+          />
         </div>
 
-        {isAddingNote && (
-          <NoteInput
-            ref={editorRef}
-            noteInput={noteInput}
-            setNoteInput={setNoteInput}
-            onSaveNote={handleSaveNote}
-            onCancel={() => {
-              setIsAddingNote(false);
-              setNoteInput("");
-            }}
-            onBlur={handleNoteInputBlur}
+        <div className="mb-2">
+          <ActionBar
+            incompleteNotes={incompleteNotes}
+            onClearAll={handleClearAll}
           />
-        )}
+        </div>
       </div>
 
       <div className="flex-grow">

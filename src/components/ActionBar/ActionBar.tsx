@@ -1,39 +1,32 @@
 import React from "react";
-import { FaEraser, FaPlus } from "react-icons/fa";
+import { FaEraser } from "react-icons/fa";
 
 interface ActionBarProps {
   incompleteNotes: number;
   onClearAll: () => void;
-  onToggleNoteInput: () => void;
 }
 
+/**
+ * Secondary actions bar: incomplete count and Clear all.
+ * Capture is primary and lives above this (in CaptureInput).
+ */
 const ActionBar: React.FC<ActionBarProps> = ({
   incompleteNotes,
   onClearAll,
-  onToggleNoteInput,
 }) => {
   return (
-    <div className="stats-container flex justify-between items-center">
-      <div className="note-stats">
-        <span id="incompleteNotes" className="text-red-400">
-          Incomplete: {incompleteNotes}
-        </span>
-      </div>
-      <div className="action-buttons flex items-center gap-2 ml-4">
-        <button
-          className="clear-all-btn bg-inputBg hover:bg-noteHover p-2 rounded-full transition-transform transform hover:scale-105"
-          onClick={onClearAll}
-          title="Clear all notes"
-        >
-          <FaEraser className="text-textColor" />
-        </button>
-        <button
-          className="toggle-note-btn small bg-buttonBg hover:bg-buttonHover p-2 rounded-full transition-transform transform hover:scale-105"
-          onClick={onToggleNoteInput}
-        >
-          <FaPlus className="text-textColor" />
-        </button>
-      </div>
+    <div className="stats-container flex justify-between items-center gap-2 min-h-[28px]">
+      <span id="incompleteNotes" className="text-red-400 text-xs tabular-nums">
+        Incomplete: {incompleteNotes}
+      </span>
+      <button
+        className="clear-all-btn shrink-0 bg-inputBg hover:bg-noteHover p-1.5 rounded-full transition-colors"
+        onClick={onClearAll}
+        title="Clear all notes"
+        aria-label="Clear all notes"
+      >
+        <FaEraser className="text-textColor" size={14} />
+      </button>
     </div>
   );
 };
