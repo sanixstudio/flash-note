@@ -1,16 +1,17 @@
 # Flash Notes
 
-Flash Notes is a simple and efficient Chrome extension for quick note-taking and task management. It allows users to create, manage, and organize notes with ease, right from their browser.
+Flash Notes is a Chrome extension for **instant note capture** with minimal friction. Capture thoughts in seconds, then organize and edit when you’re ready—right from your browser.
 
 ## Features
 
-- Create and manage notes quickly
-- Mark notes as complete or priority
-- Drag and drop to reorder notes
-- Search functionality
-- History tab for recently deleted notes
-- Keyboard shortcut for quick note creation
-- Badge counter for incomplete notes
+- **Capture-first flow** — Type in the always-visible capture bar; no “New note” click. Press **Enter** to save and keep typing the next note.
+- **Rich-text editing** — Edit any note with bold, italic, lists, blockquotes, and code (TipTap editor).
+- **Mark notes complete**, pin to top, or set priority (star).
+- **Drag and drop** to reorder notes.
+- **Search** to filter notes in real time.
+- **History** — Recently deleted notes; restore or delete permanently. Deleted notes are kept for one hour.
+- **Keyboard shortcut** — **Alt+Shift+N** (Option+Shift+N on Mac) to open the popup with focus in the capture field.
+- **Badge** — Shows the count of incomplete notes.
 
 ## Installation
 
@@ -40,56 +41,69 @@ Flash Notes is a simple and efficient Chrome extension for quick note-taking and
 
 5. Load the extension in Chrome:
    - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode" in the top right corner
-   - Click "Load unpacked" and select the `dist` folder from the project directory
+   - Enable **Developer mode** in the top right
+   - Click **Load unpacked** and select the `dist` folder
 
 ## Usage
 
-### Creating a Note
+### Capturing a note
 
-- Click the extension icon to open the popup
-- Use the "+" button or press Alt+Shift+N (Option+Shift+N on Mac) to create a new note
-- Type your note and click "Save" or press Enter
+1. Click the extension icon (or press **Alt+Shift+N** / **Option+Shift+N** on Mac).
+2. The capture bar at the top is focused — type your note.
+3. Press **Enter** to save; the bar clears and stays focused for the next note.
+4. Or click away / close the popup — your current text is saved as one note.
 
-### Managing Notes
+No “New note” or “Save” button needed for the main flow.
 
-- Click a note to mark it as complete/incomplete
-- Use the star icon to toggle priority
-- Use the trash icon to delete a note
-- Drag and drop notes to reorder them
+### Managing notes
 
-### Searching Notes
+- **Complete** — Use “Mark as Done” (checkbox) on a note.
+- **Pin** — Pin icon to keep a note at the top.
+- **Priority** — Star icon to mark priority.
+- **Edit** — Pencil icon to open the rich-text editor (bold, italic, lists, etc.).
+- **Delete** — Trash icon; the note moves to History.
+- **Reorder** — Drag the note by the top bar to reorder.
 
-- Click the search icon in the header to open the search bar
-- Type to filter notes in real-time
+### Searching notes
 
-### Viewing Deleted Notes
+- Click the search icon in the header, type to filter notes in real time.
 
-- Click the "History" tab at the bottom to view recently deleted notes
-- Deleted notes are kept for one hour before being permanently removed
+### History (deleted notes)
 
-### Clearing Notes
+- Open the **History** tab at the bottom.
+- Restore a note or delete it permanently.
+- Use **Clear All History** to remove all deleted notes (with confirmation).
+- Notes are automatically removed from history after one hour.
 
-- Use the eraser icon to clear all notes (with confirmation)
-- In the History tab, use the "Clear" button to remove all deleted notes
+### Clearing all notes
+
+- Use the eraser icon in the action bar to clear all notes (with confirmation).
 
 ## Development
 
-### Project Structure
+### Project structure
 
-- `src/`: Source files
-  - `components/`: React components
-  - `hooks/`: Custom React hooks
-  - `types/`: TypeScript type definitions
-  - `utils/`: Utility functions
-- `public/`: Public assets and manifest file
-- `dist/`: Built files (generated after build)
+- `src/` — Source
+  - `components/` — React components (e.g. CaptureInput, NoteItem, NoteEditor, HistoryTab)
+  - `hooks/` — e.g. useNotes, useCaptureFocus
+  - `types/` — TypeScript types
+  - `utils/` — Sanitization, text, date helpers
+- `public/` — Manifest and assets
+- `dist/` — Build output (generated)
 
-### Key Components
+### Key components
 
-- `App.tsx`: Main application component
-- `NoteItem.tsx`: Individual note component
-- `HistoryTab.tsx`: Deleted notes history component
-- `useNotes.ts`: Custom hook for note management logic
+- **App.tsx** — Layout, capture bar, notes list, tabs, shortcuts
+- **CaptureInput** — Always-visible capture field (Enter/blur to save)
+- **NoteItem** — Single note: view, edit (TipTap), complete, pin, delete
+- **NoteEditor** — TipTap rich-text editor for editing a note
+- **HistoryTab** — Deleted notes list with restore/permanent delete
+- **useNotes** — Note state, storage (Chrome local), add/edit/delete/reorder
 
-### Building for Production
+### Build
+
+```bash
+npm run build
+```
+
+Load the `dist` folder in Chrome as an unpacked extension to test.
