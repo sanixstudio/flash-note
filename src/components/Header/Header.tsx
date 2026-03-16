@@ -8,7 +8,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onSearchToggle, onInfoClick }) => {
   return (
-    <div className="flex justify-between items-center mb-4">
+    <div className="flex justify-between items-center mb-2">
       <h1 className="text-xl font-bold">Flash Notes</h1>
       <div className="flex items-center space-x-2">
         <button

@@ -98,3 +98,88 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Rendered note content: preserve TipTap/HTML formatting in read view */
+.note-content {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.note-content p {
+  margin: 0.25em 0;
+}
+.note-content p:first-child {
+  margin-top: 0;
+}
+.note-content p:last-child {
+  margin-bottom: 0;
+}
+.note-content strong {
+  font-weight: 700;
+  color: inherit;
+}
+.note-content em {
+  font-style: italic;
+  color: inherit;
+}
+.note-content s {
+  text-decoration: line-through;
+  color: inherit;
+}
+.note-content u {
+  text-decoration: underline;
+  color: inherit;
+}
+.note-content code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.2em;
+}
+.note-content pre {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.note-content pre code {
+  background: none;
+  padding: 0;
+}
+.note-content ul,
+.note-content ol {
+  margin: 0.25em 0;
+  padding-left: 1.25rem;
+}
+.note-content ul {
+  list-style-type: disc;
+}
+.note-content ol {
+  list-style-type: decimal;
+}
+.note-content li {
+  margin: 0.125em 0;
+}
+.note-content blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.25);
+  margin: 0.25em 0;
+  padding-left: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+.note-content a {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+.note-content a:hover {
+  color: #bfdbfe;
+}
+.note-content h1 { font-size: 1.25rem; font-weight: 700; margin: 0.5em 0; }
+.note-content h2 { font-size: 1.125rem; font-weight: 700; margin: 0.5em 0; }
+.note-content h3 { font-size: 1rem; font-weight: 600; margin: 0.4em 0; }
+.note-content h4, .note-content h5, .note-content h6 { font-size: 0.9375rem; font-weight: 600; margin: 0.35em 0; }

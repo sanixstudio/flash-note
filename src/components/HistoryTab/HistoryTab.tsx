@@ -80,7 +80,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               </div>
               <div className="p-2">
                 <div
-                  className="text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit"
+                  className="note-content text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.content) }}
                 />
               </div>

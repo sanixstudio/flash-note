@@ -1,6 +1,15 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useLayoutEffect } from "react";
 
 const CAPTURE_PLACEHOLDER = "Capture a thought…";
+const MIN_HEIGHT_PX = 44;
+const MAX_HEIGHT_PX = 120;
+
+/** Resizes the textarea to fit content between MIN_HEIGHT_PX and MAX_HEIGHT_PX. */
+function resizeTextarea(el: HTMLTextAreaElement): void {
+  el.style.height = "auto";
+  const height = Math.min(MAX_HEIGHT_PX, Math.max(MIN_HEIGHT_PX, el.scrollHeight));
+  el.style.height = `${height}px`;
+}
 
 export interface CaptureInputProps {
   /** Called when the user commits content (Enter or blur with content). */
@@ -22,6 +31,14 @@ const CaptureInput: React.FC<CaptureInputProps> = ({
   const localRef = useRef<HTMLTextAreaElement>(null);
   const ref = externalRef ?? localRef;
 
+  const resizeIfMounted = useCallback(() => {
+    if (ref.current) resizeTextarea(ref.current);
+  }, [ref]);
+
+  useLayoutEffect(() => {
+    resizeIfMounted();
+  }, [resizeIfMounted]);
+
   const commitAndClear = useCallback(() => {
     const el = ref.current;
     if (!el) return;
@@ -29,8 +46,13 @@ const CaptureInput: React.FC<CaptureInputProps> = ({
     if (value) {
       onCapture(value);
       el.value = "";
+      resizeTextarea(el);
     }
   }, [onCapture, ref]);
+
+  const handleInput = useCallback(() => {
+    resizeIfMounted();
+  }, [resizeIfMounted]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -55,11 +77,12 @@ const CaptureInput: React.FC<CaptureInputProps> = ({
   return (
     <textarea
       ref={ref as React.RefObject<HTMLTextAreaElement>}
-      className="capture-input w-full min-h-[44px] max-h-[120px] py-2.5 px-3 rounded-lg bg-[var(--input-bg)] text-[var(--text-color)] placeholder-gray-500 resize-none border border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm"
+      className="capture-input w-full min-h-[44px] max-h-[120px] py-2.5 px-3 rounded-lg bg-[var(--input-bg)] text-[var(--text-color)] placeholder-gray-500 resize-none border border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm overflow-y-auto"
       placeholder={CAPTURE_PLACEHOLDER}
       rows={1}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
+      onInput={handleInput}
       aria-label="Capture a note"
     />
   );

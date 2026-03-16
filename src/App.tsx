@@ -201,14 +201,14 @@ const App: React.FC = () => {
       </style>
       {error && <div className="text-red-500 p-1 text-xs">{error}</div>}
 
-      <div className="p-2 flex-shrink-0">
+      <div className="p-3 flex-shrink-0 space-y-2">
         <Header
           onSearchToggle={handleSearchToggle}
           onInfoClick={handleInfoClick}
         />
 
         {searchVisible && (
-          <div ref={searchContainerRef} className="mb-2">
+          <div ref={searchContainerRef}>
             <input
               ref={searchInputRef}
               type="text"
@@ -221,22 +221,18 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="mb-2">
-          <CaptureInput
-            onCapture={handleCapture}
-            inputRef={captureInputRef}
-          />
-        </div>
+        <CaptureInput
+          onCapture={handleCapture}
+          inputRef={captureInputRef}
+        />
 
-        <div className="mb-2">
-          <ActionBar
-            incompleteNotes={incompleteNotes}
-            onClearAll={handleClearAll}
-          />
-        </div>
+        <ActionBar
+          incompleteNotes={incompleteNotes}
+          onClearAll={handleClearAll}
+        />
       </div>
 
-      <div className="flex-grow">
+      <div className="flex-grow min-h-0 overflow-hidden flex flex-col">
         {activeTab === "notes" ? (
           <DragDropContext onDragEnd={onDragEnd}>
             <ScrollArea className="flex-grow px-2 pb-2">
@@ -249,19 +245,34 @@ const App: React.FC = () => {
                       snapshot.isDraggingOver ? "bg-blue-500/5" : ""
                     }`}
                   >
-                    {filteredNotes.map((note, index) => (
-                      <NoteItem
-                        key={note.id}
-                        note={note}
-                        index={index}
-                        onToggleCompletion={toggleNoteCompletion}
-                        onTogglePriority={toggleNotePriority}
-                        onDelete={deleteNote}
-                        onCopy={handleCopyNote}
-                        onEdit={handleEditNote}
-                        onTogglePin={toggleNotePin}
-                      />
-                    ))}
+                    {filteredNotes.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                        <p className="text-gray-400 text-sm">
+                          {searchTerm.trim()
+                            ? "No notes match your search."
+                            : "Your quick captures will appear here."}
+                        </p>
+                        {!searchTerm.trim() && (
+                          <p className="text-gray-500 text-xs mt-1">
+                            Type above and press Enter to capture.
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      filteredNotes.map((note, index) => (
+                        <NoteItem
+                          key={note.id}
+                          note={note}
+                          index={index}
+                          onToggleCompletion={toggleNoteCompletion}
+                          onTogglePriority={toggleNotePriority}
+                          onDelete={deleteNote}
+                          onCopy={handleCopyNote}
+                          onEdit={handleEditNote}
+                          onTogglePin={toggleNotePin}
+                        />
+                      ))
+                    )}
                     {provided.placeholder}
                   </div>
                 )}

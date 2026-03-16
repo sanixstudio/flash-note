@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import {
   FaTrash,
@@ -14,7 +14,7 @@ import { NoteItemProps } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { sanitizeHtml } from "@/utils/sanitize";
 import { useToast } from "@/hooks/use-toast";
-import MDEditor from "@uiw/react-md-editor";
+import NoteEditor from "@/components/NoteEditor/NoteEditor";
 
 const NoteItem: React.FC<NoteItemProps> = ({
   note,
@@ -28,18 +28,6 @@ const NoteItem: React.FC<NoteItemProps> = ({
 }) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(note.content);
-  const editorRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isEditing && editorRef.current) {
-      // Focus the editor when editing starts
-      const textArea = editorRef.current.querySelector('textarea');
-      if (textArea) {
-        textArea.focus();
-      }
-    }
-  }, [isEditing]);
 
   const handleCopy = () => {
     onCopy(note.content);
@@ -54,9 +42,9 @@ const NoteItem: React.FC<NoteItemProps> = ({
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    if (editedContent.trim() !== note.content) {
-      onEdit(note.id, editedContent);
+  const handleEditorSave = (html: string) => {
+    if (html !== note.content) {
+      onEdit(note.id, html);
       toast({
         title: "Note updated",
         description: "Your note has been successfully updated.",
@@ -66,15 +54,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
     setIsEditing(false);
   };
 
-  const handleCancel = () => {
-    setEditedContent(note.content);
+  const handleEditorCancel = () => {
     setIsEditing(false);
-  };
-
-  // MDEditor configuration for inline editing - only valid props
-  const editorConfig = {
-    preview: "edit" as const,
-    hideToolbar: false,
   };
 
   return (
@@ -135,17 +116,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
           </div>
           <div className={`p-2 bg-black/20 ${isEditing ? "bg-black/30" : ""}`}>
             {isEditing ? (
-              <div ref={editorRef}>
-                <MDEditor
-                  value={editedContent}
-                  onChange={(val) => setEditedContent(val || "")}
-                  data-color-mode="dark"
-                  {...editorConfig}
-                />
-              </div>
+              <NoteEditor
+                initialContent={note.content}
+                onSave={handleEditorSave}
+                onCancel={handleEditorCancel}
+              />
             ) : (
               <div
-                className={`text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit ${
+                className={`note-content text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit ${
                   note.completed ? "line-through" : ""
                 }`}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.content) }}
@@ -153,24 +131,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
             )}
           </div>
           <div className="note-controls flex justify-end space-x-2">
-            {isEditing ? (
-              <div className="flex justify-end space-x-2 w-full">
-                <button
-                  className="bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
-                  onClick={handleSave}
-                >
-                  {/* <FaSave size={14} /> */}
-                  Save
-                </button>
-                <button
-                  className="bg-transparent p-1 rounded text-gray-300 hover:text-gray-100"
-                  onClick={handleCancel}
-                >
-                  {/* <FaTimes size={14} /> */}
-                  Cancel
-                </button>
-              </div>
-            ) : (
+            {!isEditing && (
               <div className="flex justify-end space-x-2 w-full">
                 <div className="w-full p-2">
                   <button
