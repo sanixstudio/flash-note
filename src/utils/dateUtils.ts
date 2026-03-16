@@ -1,7 +1,13 @@
 import { format, isToday, isYesterday, isThisYear } from "date-fns";
 
-export const formatDate = (dateString: string) => {
+/**
+ * Formats a date string for display. Returns a fallback if the date is invalid.
+ */
+export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
   if (isToday(date)) {
     return `Today at ${format(date, "h:mm a")}`;
   } else if (isYesterday(date)) {

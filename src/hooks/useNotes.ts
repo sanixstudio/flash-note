@@ -84,9 +84,17 @@ export const useNotes = () => {
         setIncompleteNotesAndUpdateBadge(incompleteCount);
       });
     } else {
-      const savedNotes: Note[] = JSON.parse(
-        localStorage.getItem("notes") || "[]"
-      ).map(
+      let raw: unknown;
+      try {
+        raw = JSON.parse(localStorage.getItem("notes") || "[]");
+      } catch {
+        setError("Failed to load notes: corrupted storage");
+        setNotes([]);
+        setIncompleteNotesAndUpdateBadge(0);
+        return;
+      }
+      const parsed = Array.isArray(raw) ? raw : [];
+      const savedNotes: Note[] = parsed.map(
         (
           note: Omit<Note, "createdAt" | "updatedAt"> & {
             createdAt: string;
@@ -104,6 +112,7 @@ export const useNotes = () => {
       ).length;
       setIncompleteNotesAndUpdateBadge(incompleteCount);
     }
+    // Intentionally run only on mount; getNotes reads from storage and updates state once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setIncompleteNotesAndUpdateBadge, isChromeApiAvailable, setError]);
 
@@ -191,14 +200,21 @@ export const useNotes = () => {
     saveNotes([]);
   };
 
-  const reorderNotes = (startIndex: number, endIndex: number) => {
-    const result = Array.from(notes);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    setNotes(result);
-    saveNotes(result);
-  };
+  /**
+   * Reorders notes by moving the item at sourceIndex to destIndex within the
+   * displayed list. Call with the currently displayed list (e.g. filteredNotes)
+   * so indices match. Disable drag when the list is filtered (e.g. search active).
+   */
+  const reorderNotes = useCallback(
+    (displayedList: Note[], sourceIndex: number, destIndex: number) => {
+      const result = Array.from(displayedList);
+      const [removed] = result.splice(sourceIndex, 1);
+      result.splice(destIndex, 0, removed);
+      setNotes(result);
+      saveNotes(result);
+    },
+    [saveNotes]
+  );
 
   const clearOldDeletedNotes = useCallback(() => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
@@ -238,18 +254,20 @@ export const useNotes = () => {
         ...noteToRestore,
         updatedAt: new Date(),
       };
-      setNotes((prevNotes) => [restoredNote, ...prevNotes]);
-
-      setDeletedNotes((prevDeletedNotes) =>
-        prevDeletedNotes.filter((note) => note.id !== noteToRestore.id)
+      setDeletedNotes((prev) =>
+        prev.filter((note) => note.id !== noteToRestore.id)
       );
-
-      setIncompleteNotesAndUpdateBadge(
-        notes.filter((note) => !note.completed).length + 1
-      );
-      saveNotes([restoredNote, ...notes]);
+      setNotes((prevNotes) => {
+        const nextNotes = [restoredNote, ...prevNotes];
+        saveNotes(nextNotes);
+        const incompleteCount = nextNotes.filter(
+          (n) => !n.completed
+        ).length;
+        setIncompleteNotesAndUpdateBadge(incompleteCount);
+        return nextNotes;
+      });
     },
-    [notes, setIncompleteNotesAndUpdateBadge, saveNotes]
+    [setIncompleteNotesAndUpdateBadge, saveNotes]
   );
 
   const deleteDeletedNote = useCallback((id: number) => {

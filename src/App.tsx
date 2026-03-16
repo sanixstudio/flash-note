@@ -30,7 +30,7 @@ const App: React.FC = () => {
     editNote,
     toggleNotePin,
     restoreNote,
-    deleteDeletedNote, // Add this new hook
+    deleteDeletedNote,
   } = useNotes();
 
   const [noteInput, setNoteInput] = useState<string>("");
@@ -189,14 +189,10 @@ const App: React.FC = () => {
   };
 
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-
-    // Only reorder if the position actually changed
-    if (result.source.index !== result.destination.index) {
-      reorderNotes(result.source.index, result.destination.index);
-    }
+    if (!result.destination) return;
+    if (result.source.index === result.destination.index) return;
+    // Reorder using the displayed list so indices match; drag is disabled when search is active
+    reorderNotes(filteredNotes, result.source.index, result.destination.index);
   };
 
   const handleInfoClick = () => {
@@ -277,7 +273,7 @@ const App: React.FC = () => {
         {activeTab === "notes" ? (
           <DragDropContext onDragEnd={onDragEnd}>
             <ScrollArea className="flex-grow px-2 pb-2">
-              <Droppable droppableId="notes" key="notes-droppable">
+              <Droppable droppableId="notes" key="notes-droppable" isDropDisabled={!!searchTerm.trim()}>
                 {(provided, snapshot) => (
                   <div
                     {...provided.droppableProps}

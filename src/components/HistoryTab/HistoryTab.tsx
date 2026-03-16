@@ -1,6 +1,7 @@
 import React from "react";
 import { DeletedNote } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { sanitizeHtml } from "@/utils/sanitize";
 import { FaClock, FaUndo, FaTrash } from "react-icons/fa";
 
 interface HistoryTabProps {
@@ -80,7 +81,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               <div className="p-2">
                 <div
                   className="text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit"
-                  dangerouslySetInnerHTML={{ __html: note.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.content) }}
                 />
               </div>
               <div className="flex justify-end p-2 bg-gray-800 rounded-b">

@@ -10,21 +10,11 @@ import {
   FaRegCheckSquare,
   FaRegSquare,
 } from "react-icons/fa";
-import { Note } from "@/types";
+import { NoteItemProps } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { sanitizeHtml } from "@/utils/sanitize";
 import { useToast } from "@/hooks/use-toast";
 import MDEditor from "@uiw/react-md-editor";
-
-interface NoteItemProps {
-  note: Note;
-  index: number;
-  onToggleCompletion: (id: number) => void;
-  onTogglePriority: (id: number) => void;
-  onDelete: (id: number) => void;
-  onCopy: (content: string) => void;
-  onEdit: (id: number, newContent: string) => void;
-  onTogglePin: (id: number) => void;
-}
 
 const NoteItem: React.FC<NoteItemProps> = ({
   note,
@@ -158,17 +148,11 @@ const NoteItem: React.FC<NoteItemProps> = ({
                 className={`text-[var(--text-color)] p-2 bg-black/20 rounded-t-sm min-h-fit ${
                   note.completed ? "line-through" : ""
                 }`}
-                dangerouslySetInnerHTML={{ __html: note.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.content) }}
               />
             )}
           </div>
-          <div
-            className={`note-controls ${
-              isEditing
-                ? "flex justify-end space-x-2"
-                : "flex justify-end space-x-2"
-            }`}
-          >
+          <div className="note-controls flex justify-end space-x-2">
             {isEditing ? (
               <div className="flex justify-end space-x-2 w-full">
                 <button
